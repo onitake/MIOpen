@@ -159,7 +159,7 @@ bool PerformanceConvMlirIgemmXdlops::SetNextValue(const ConvolutionContext& conf
             }
             else if(config.direction.IsBackwardData())
             {
-                if(!NextTwoPower<1, 1>(GemmKPACKSize))
+                if(!NextTwoPower<1, 4>(GemmKPACKSize))
                     break;
             }
         }
