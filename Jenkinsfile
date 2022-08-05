@@ -306,7 +306,7 @@ def buildDocker(install_prefix)
 
     echo "Build Args: ${dockerArgs}"
 
-    def dep_changed = sh(script:"""git diff --name-only develop... | grep -q 'requirements.txt\|Dockerfile' """, returnStdout: true).trim()
+    def dep_changed = sh(script:"""git diff --name-only develop... | grep -q 'requirements.txt|Dockerfile' """, returnStdout: true).trim()
     if (dep_changed)
     {
         echo "At least one of requirements.txt or Dockerfile is changed. Building image now"
