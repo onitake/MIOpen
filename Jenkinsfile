@@ -115,7 +115,27 @@ def cmake_build(Map conf=[:]){
 def getDockerImageName(prefixpath)
 {
     def branch =  sh(script: "echo ${scm.branches[0].name} | sed 's/[^a-zA-Z0-9]/_/g' ", returnStdout: true).trim()
-    def image = "${env.MIOPEN_IMAGE_URL}:miopen_ci_${branch}"
+    def head = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+    def miopen_image = "${env.MIOPEN_IMAGE_URL}"
+
+    sh 'docker images ${miopen_image} | awk \'{print $2}\' '
+    try
+    {
+        def tag = sh 'docker images ${miopen_image} | awk \'{print $2}\' | grep -e \'${branch}\' '
+        //def tag = sh 'docker images ${miopen_image} | awk \'{print $2}\' | grep -e \'find_MLIR\' '
+        echo "${miopen_image}:${tag} is found"
+        def strs = tag.split('_')
+        def previous_commit = strs[strs.size()-2]
+        echo "Comparing ${head} with ${previous_commit}"
+    }
+    catch(Exception ex)
+    {
+        echo "${miopen_image}:miopen_ci_${branch} is NOT found"
+    }
+
+
+    // Temp: every new push will trigger a rebuild of the docker image
+    def image = "${env.MIOPEN_IMAGE_URL}:miopen_ci_${branch}_${head}"
     if(prefixpath == "/usr/local")
     {
         image = image + "_usr"
@@ -125,12 +145,12 @@ def getDockerImageName(prefixpath)
         image = image + "_opt"
     }
     else
-    {
+        {
         error "Unknown prefixpath: ${prefixpath}"
     }
-    return image
+    return} image
 
-}
+
 def getDockerImage(Map conf=[:])
 {
     env.DOCKER_BUILDKIT=1
@@ -306,27 +326,17 @@ def buildDocker(install_prefix)
 
     echo "Build Args: ${dockerArgs}"
 
-    def dep_changed = sh(script:"""git diff --name-only develop... | grep -q 'requirements.txt|Dockerfile' """, returnStdout: true).trim()
-    if (dep_changed)
+    try
     {
-        echo "At least one of requirements.txt or Dockerfile is changed. Building image now"
-        retimage = docker.build("${image_name}:latest", dockerArgs + ' .')
-        retimage.push()
+        echo "Checking for image: ${image_name}"
+        sh "docker manifest inspect --insecure ${image_name}"
+        echo "Image: ${image_name} found!! Skipping building image"
     }
-    else
+    catch(Exception ex)
     {
-        try
-        {
-            echo "Checking for image: ${image_name}"
-            sh "docker manifest inspect --insecure ${image_name}"
-            echo "Image: ${image_name} found!! Skipping building image"
-        }
-        catch(Exception ex)
-        {
-            echo "Unable to locate image: ${image_name}. Building image now"
-            retimage = docker.build("${image_name}", dockerArgs + ' .')
-            retimage.push()
-        }
+        echo "Unable to locate image: ${image_name}. Building image now"
+        retimage = docker.build("${image_name}", dockerArgs + ' .')
+        retimage.push()
     }
 }
 
