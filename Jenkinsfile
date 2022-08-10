@@ -145,10 +145,11 @@ def getDockerImageName(prefixpath)
         image = image + "_opt"
     }
     else
-        {
+    {
         error "Unknown prefixpath: ${prefixpath}"
     }
-    return} image
+    return image
+}
 
 
 def getDockerImage(Map conf=[:])
