@@ -117,8 +117,14 @@ def getDockerImageName(prefixpath)
     def branch =  sh(script: "echo ${scm.branches[0].name} | sed 's/[^a-zA-Z0-9]/_/g' ", returnStdout: true).trim()
     def head = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
     def miopen_image = "${env.MIOPEN_IMAGE_URL}"
+    echo ${miopen_image}
 
-    sh 'docker images ${miopen_image} | awk \'{print $2}\' '
+    //sh '''
+    //   docker images ${miopen_image} | awk \'{print $2}\'
+    //'''
+    //sh(script: "docker images ${miopen_image} | awk '{print $2}' ", returnStdout: true).trim()
+    //def found = sh 'docker images ${miopen_image} | awk \'{print $2}\' | grep -e \'${branch}\' '
+    //echo "found: ${found}"
     try
     {
         def tag = sh 'docker images ${miopen_image} | awk \'{print $2}\' | grep -e \'${branch}\' '
