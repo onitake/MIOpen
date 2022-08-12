@@ -687,8 +687,8 @@ if(miopentensile_FOUND)
     target_link_libraries(MIOpen PRIVATE MIOpenTensile)
 endif()
 
-if(LIBMLIRMIOPEN)
-  target_link_libraries(MIOpen PRIVATE ${LIBMLIRMIOPEN})
+if(MIOPEN_USE_MLIR)
+  target_link_libraries(MIOpen PRIVATE Miir::MLIRMIOpen)
 endif()
 
 if(WIN32 AND NOT MSVC)
