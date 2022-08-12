@@ -1,43 +1,43 @@
 [//]: # (This file is a tempory place to update missing environment varibles in DebugAndLogging.md)
 [//]: # (DebugAndLogging.md contains 88 env vars; Develop contains 157. Below is the difference)
-MIOPEN_CONV_PRECISE_ROCBLAS_TIMING : boolean 0/1, disable/enable convolution time precision; when enabled rocBLAS needs extra warm-up call for accurate timing 
+1. MIOPEN_CONV_PRECISE_ROCBLAS_TIMING : Boolean 0/1, disable/enable convolution time precision; when enabled rocBLAS needs extra warm-up call for accurate timing 
 
-MIOPEN_CUSTOM_CACHE_DIR : string, set custommized cache directory specified by the user
+2. MIOPEN_CUSTOM_CACHE_DIR : string, set custommized cache directory specified by the user
 
-MIOPEN_DEBUG_AMD_ASM_KERNELS_PERF_FILTERING: commented out for now
-MIOPEN_DEBUG_AMD_WINOGRAD_RXS_F2X3_PERF_VALS  [//]: # (Todo)
-MIOPEN_DEBUG_AMD_WINOGRAD_RXS_F3X2_PERF_VALS  [//]: # (Todo)
+3. MIOPEN_DEBUG_AMD_ASM_KERNELS_PERF_FILTERING: commented out for now
+4. MIOPEN_DEBUG_AMD_WINOGRAD_RXS_F2X3_PERF_VALS  [//]: # (Todo)
+5. MIOPEN_DEBUG_AMD_WINOGRAD_RXS_F3X2_PERF_VALS  [//]: # (Todo)
 
-MIOPEN_DEBUG_CK_BLOCK_SYNC_LDS_WITHOUT_SYNC_VMEM: Binary 0/1; Compiler Flag; to sync LDS(Local Data Share); [//]: # (Followup)
+6. MIOPEN_DEBUG_CK_BLOCK_SYNC_LDS_WITHOUT_SYNC_VMEM: Boolean 0/1; Compiler Flag; to sync LDS(Local Data Share); [//]: # (Followup)
 
-MIOPEN_DEBUG_CK_USE_AMD_BUFFER_ADDRESSING : Binary 0/1; Compiler Flag; Buffer addressing; [//]: # (Followup)
+7. MIOPEN_DEBUG_CK_USE_AMD_BUFFER_ADDRESSING : Boolean 0/1; Compiler Flag; Buffer addressing; [//]: # (Followup)
 
-MIOPEN_DEBUG_COMGR_COMPILER_OPTIONS_INSERT: String, debug compiler options when building HIP
+8. MIOPEN_DEBUG_COMGR_COMPILER_OPTIONS_INSERT: String, debug compiler options when building HIP
 
-MIOPEN_DEBUG_COMGR_HIP_BUILD_FATBIN: Binary 0/1; Build HIP and compile source to Fatbin
+9. MIOPEN_DEBUG_COMGR_HIP_BUILD_FATBIN: Boolean 0/1; Build HIP and compile source to Fatbin
 
-MIOPEN_DEBUG_COMGR_HIP_PCH_ENFORCE: Binary 0/1; Store PCH Enforced status if PCH is supported [//]: # (Followup)
+10. MIOPEN_DEBUG_COMGR_HIP_PCH_ENFORCE: Boolean 0/1; Store PCH Enforced status if PCH is supported [//]: # (Followup)
 
-MIOPEN_DEBUG_COMGR_LOG_CALLS: Binary, if enabled, prints build logs onto console even if CMGR or HIPRTC call returns success
+11. MIOPEN_DEBUG_COMGR_LOG_CALLS: Binary, if enabled, prints build logs onto console even if CMGR or HIPRTC call returns success
 
-MIOPEN_DEBUG_COMGR_LOG_OPTIONS : logging options
+12. MIOPEN_DEBUG_COMGR_LOG_OPTIONS : logging options
 0: Off.
 1: Logs each option on a separate line.
 2: Logs all options altogether, on single line.
 
-MIOPEN_DEBUG_COMGR_LOG_SOURCE_NAMES : Binary, when enabled, log source file name and size etc, e.g. hip.pch
+13. MIOPEN_DEBUG_COMGR_LOG_SOURCE_NAMES : Boolean, when enabled, log source file name and size etc, e.g. hip.pch
 
-MIOPEN_DEBUG_COMGR_LOG_SOURCE_TEXT: Int; Set logging information text file content/container size
+14. MIOPEN_DEBUG_COMGR_LOG_SOURCE_TEXT: Int; Set logging information text file content/container size
 
-MIOPEN_DEBUG_COMPILE_ONLY: Boolean 0/1, If enabled, running kernels on GPU is disabled and Search skipped
+15. MIOPEN_DEBUG_COMPILE_ONLY: Boolean 0/1, If enabled, running kernels on GPU is disabled and Search skipped
 
-MIOPEN_DEBUG_CONVOLUTION_ATTRIB_FP16_ALT_IMPL : Gfx90aFp16alt convolution attribute Fp16alt 
+16. MIOPEN_DEBUG_CONVOLUTION_ATTRIB_FP16_ALT_IMPL : Gfx90aFp16alt convolution attribute Fp16alt 
 /// * -1: Default (attribute-specific).
  /// * 0: Disabled/Yes.
 /// * 1: Enabled/No.
 [//]: # (Followup)
 
-MIOPEN_DEBUG_CONVOLUTION_DETERMINISTIC : Determinitic convolution attibute 
+17. MIOPEN_DEBUG_CONVOLUTION_DETERMINISTIC : Determinitic convolution attibute 
  
  /// * -1: Default (attribute-specific).
  /// * 0: Disabled/Yes.
