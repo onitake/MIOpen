@@ -5,8 +5,9 @@
 2. MIOPEN_CUSTOM_CACHE_DIR : string, set custommized cache directory specified by the user
 
 3. MIOPEN_DEBUG_AMD_ASM_KERNELS_PERF_FILTERING: commented out for now
-4. MIOPEN_DEBUG_AMD_WINOGRAD_RXS_F2X3_PERF_VALS  [//]: # (Todo)
-5. MIOPEN_DEBUG_AMD_WINOGRAD_RXS_F3X2_PERF_VALS  [//]: # (Todo)
+4. MIOPEN_DEBUG_AMD_WINOGRAD_RXS_F2X3_PERF_VALS  [//]: # introduced for winograd kernel debug and testing. It allows you to override PerformanceConfig of the kernel. (PerformanceConfig contains one parameter : n_groups).
+
+5. MIOPEN_DEBUG_AMD_WINOGRAD_RXS_F3X2_PERF_VALS  [//]: # same as above but for 3x2 kernel
 
 6. MIOPEN_DEBUG_CK_BLOCK_SYNC_LDS_WITHOUT_SYNC_VMEM: Boolean 0/1; Compiler Flag; to sync LDS(Local Data Share); [//]: # (Followup)
 
@@ -31,19 +32,21 @@
 
 15. MIOPEN_DEBUG_COMPILE_ONLY: Boolean 0/1, If enabled, running kernels on GPU is disabled and Search skipped
 
-16. MIOPEN_DEBUG_CONVOLUTION_ATTRIB_FP16_ALT_IMPL : Gfx90aFp16alt convolution attribute Fp16alt 
+16. MIOPEN_DEBUG_CONVOLUTION_ATTRIB_FP16_ALT_IMPL : 
+Alternative way for kernel implementation on MI200 to converge network on FP16
+
 /// * -1: Default (attribute-specific).
  /// * 0: Disabled/Yes.
 /// * 1: Enabled/No.
-[//]: # (Followup)
 
-17. MIOPEN_DEBUG_CONVOLUTION_DETERMINISTIC : Determinitic convolution attibute 
- 
- /// * -1: Default (attribute-specific).
- /// * 0: Disabled/Yes.
-/// * 1: Enabled/No.
 
-MIOPEN_DEBUG_CONV_CK_IGEMM_FWD_V6R1_DLOPS_NCHW
+17. MIOPEN_DEBUG_CONVOLUTION_DETERMINISTIC : to skip certain solvers that utilize atomic-addinstruction, which cause non-deterministirc results run-to-run. 
+ /// * 0: Default.
+/// * 1: skip the non-deterministic solvers.
+
+18. MIOPEN_DEBUG_CONV_CK_IGEMM_FWD_V6R1_DLOPS_NCHW
+
+
 MIOPEN_DEBUG_CONV_DIRECT_ASM_1X1UV2_PERF_VALS
 MIOPEN_DEBUG_CONV_DIRECT_ASM_1X1UV2_SEARCH_OPTIMIZED
 MIOPEN_DEBUG_CONV_DIRECT_ASM_1X1U_PERF_VALS
@@ -76,9 +79,13 @@ MIOPEN_DEBUG_DISABLE_FIND_DB
 MIOPEN_DEBUG_DISABLE_SQL_WAL
 MIOPEN_DEBUG_DYNAMIC_REDUCTION
 MIOPEN_DEBUG_ENFORCE_DEVICE
-MIOPEN_DEBUG_HIP_DUMP
-MIOPEN_DEBUG_HIP_VERBOSE
+
+MIOPEN_DEBUG_HIP_DUMP: Boolean, when enabled, add -gline-tables-only and -save-temps parameters when building HIP
+
+MIOPEN_DEBUG_HIP_VERBOSE: Boolean, when enabled, add -v (verbose) parameter when building HIP
+
 MIOPEN_DEBUG_IMPLICIT_GEMM_FIND_ALL_SOLUTIONS
+
 MIOPEN_DEBUG_IMPLICIT_GEMM_NON_XDLOPS_INLINE_ASM
 MIOPEN_DEBUG_IMPLICIT_GEMM_XDLOPS_INLINE_ASM
 MIOPEN_DEBUG_LOGGING_QUIETING_DISABLE
@@ -93,8 +100,14 @@ MIOPEN_DISABLE_CACHE
 MIOPEN_DRIVER_PAD_BUFFERS_2M
 MIOPEN_DRIVER_USE_GPU_REFERENCE
 MIOPEN_EXPERIMENTAL_GCN_ASM_PATH
-MIOPEN_FIND_ENFORCE
-MIOPEN_FIND_MODE
-MIOPEN_SYSTEM_DB_PATH
-MIOPEN_USER_DB_PATH
-MIOPEN_VERIFY_CACHE_PATH
+
+MIOPEN_FIND_ENFORCE: String, 
+[//]: # (Followup)
+
+MIOPEN_FIND_MODE : defined in find_and_immediate.md
+
+MIOPEN_SYSTEM_DB_PATH : String, path of system db files
+
+MIOPEN_USER_DB_PATH : String, path of user db files
+
+MIOPEN_VERIFY_CACHE_PATH: String, Path of MIOpen cache, default is ~/.cache/miopen/tests
