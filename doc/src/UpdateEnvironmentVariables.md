@@ -32,13 +32,7 @@
 
 15. MIOPEN_DEBUG_COMPILE_ONLY: Boolean 0/1, If enabled, running kernels on GPU is disabled and Search skipped
 
-16. MIOPEN_DEBUG_CONVOLUTION_ATTRIB_FP16_ALT_IMPL : 
-Alternative way for kernel implementation on MI200 to converge network on FP16
-
-/// * -1: Default (attribute-specific).
- /// * 0: Disabled/Yes.
-/// * 1: Enabled/No.
-
+16. MIOPEN_DEBUG_CONVOLUTION_ATTRIB_FP16_ALT_IMPL : Please refer to MI200AlternateImplementation.md
 
 17. MIOPEN_DEBUG_CONVOLUTION_DETERMINISTIC : to skip certain solvers that utilize atomic-addinstruction, which cause non-deterministirc results run-to-run. 
  /// * 0: Default.
