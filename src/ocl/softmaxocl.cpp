@@ -29,6 +29,8 @@
 #include <miopen/check_numerics.hpp>
 #include <miopen/tensor.hpp>
 
+#include <miopen/convolution.hpp>
+
 namespace miopen {
 
 int nextPow2(int v)
@@ -308,7 +310,14 @@ miopenStatus_t SoftmaxForward(const Handle& handle,
     }
     if(miopen::CheckNumericsEnabled())
     {
-        miopen::checkNumericsOutput(handle, yDesc, y);
+        bool flag = miopen::checkNumericsOutput(handle, yDesc, y);
+        const char* file_name = miopen::GetStringEnv(MIOPEN_DUMP_TENSOR_PATH{});
+        if(flag && static_cast<bool>(file_name))
+        {
+            std::string file_name_str = file_name;
+            DumpTensorToFileFromDevice(handle, xDesc, x, file_name_str + "_x.bin");
+            DumpTensorToFileFromDevice(handle, yDesc, y, file_name_str + "_y.bin");
+        }
     }
     return miopenStatusSuccess;
 }
@@ -348,9 +357,10 @@ miopenStatus_t SoftmaxBackward(const Handle& handle,
         MIOPEN_THROW(miopenStatusBadParm, "Tensor dimension lengths do not match.");
     }
 
+    bool flag = false;
     if(miopen::CheckNumericsEnabled())
     {
-        miopen::checkNumericsInput(handle, yDesc, y);
+        flag = miopen::checkNumericsInput(handle, yDesc, y);
     }
 
     int n, c, h, w;
@@ -604,7 +614,15 @@ miopenStatus_t SoftmaxBackward(const Handle& handle,
     }
     if(miopen::CheckNumericsEnabled())
     {
-        miopen::checkNumericsOutput(handle, dxDesc, dx);
+        flag |= miopen::checkNumericsOutput(handle, dxDesc, dx);
+        const char* file_name = miopen::GetStringEnv(MIOPEN_DUMP_TENSOR_PATH{});
+        if(flag && static_cast<bool>(file_name))
+        {
+            std::string file_name_str = file_name;
+            DumpTensorToFileFromDevice(handle, yDesc, y, file_name_str + "_y.bin");
+            DumpTensorToFileFromDevice(handle, dyDesc, dy, file_name_str + "_dy.bin");
+            DumpTensorToFileFromDevice(handle, dxDesc, dx, file_name_str + "_dx.bin");
+        }
     }
 
     return miopenStatusSuccess;

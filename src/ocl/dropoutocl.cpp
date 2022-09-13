@@ -38,6 +38,8 @@
 #include <algorithm>
 #include <iostream>
 
+#include <miopen/convolution.hpp>
+
 #define DROPOUT_DEBUG 0
 
 namespace miopen {
@@ -230,11 +232,12 @@ void DropoutDescriptor::DropoutForward(const Handle& handle,
         MIOPEN_THROW("Memory required by dropout forward configs exceeds GPU memory range.");
     }
 
+    bool flag = false;
     if(miopen::CheckNumericsEnabled())
     {
         std::cout << "Dropout forward input numerics check at dropout rate " << dropout
                   << std::endl;
-        miopen::checkNumericsInput(handle, xDesc, x);
+        flag |= miopen::checkNumericsInput(handle, xDesc, x);
     }
 
     // support up to 5D tensor
@@ -364,7 +367,14 @@ void DropoutDescriptor::DropoutForward(const Handle& handle,
     {
         std::cout << "Dropout forward output numerics check at dropout rate " << dropout
                   << std::endl;
-        miopen::checkNumericsOutput(handle, yDesc, y);
+        flag |= miopen::checkNumericsOutput(handle, yDesc, y);
+		const char* file_name = miopen::GetStringEnv(MIOPEN_DUMP_TENSOR_PATH{});
+        if(flag && static_cast<bool>(file_name))
+        {
+            std::string file_name_str = file_name;
+            DumpTensorToFileFromDevice(handle, xDesc, x, file_name_str + "_x.bin");
+            DumpTensorToFileFromDevice(handle, yDesc, y, file_name_str + "_y.bin");
+        }
     }
 }
 
@@ -431,11 +441,12 @@ void DropoutDescriptor::DropoutBackward(const Handle& handle,
         MIOPEN_THROW("Memory required by dropout backward configs exceeds GPU memory range.");
     }
 
+    bool flag = false;
     if(miopen::CheckNumericsEnabled())
     {
         std::cout << "Dropout backward input numerics check at dropout rate " << dropout
                   << std::endl;
-        miopen::checkNumericsInput(handle, dyDesc, dy);
+        flag |= miopen::checkNumericsInput(handle, dyDesc, dy);
     }
 
     // support up to 5D tensor
@@ -569,7 +580,14 @@ void DropoutDescriptor::DropoutBackward(const Handle& handle,
     {
         std::cout << "Dropout backward output numerics check at dropout rate " << dropout
                   << std::endl;
-        miopen::checkNumericsOutput(handle, dxDesc, dx);
+        flag |= miopen::checkNumericsOutput(handle, dxDesc, dx);
+		const char* file_name = miopen::GetStringEnv(MIOPEN_DUMP_TENSOR_PATH{});
+        if(flag && static_cast<bool>(file_name))
+        {
+            std::string file_name_str = file_name;
+            DumpTensorToFileFromDevice(handle, dxDesc, dx, file_name_str + "_dx.bin");
+            DumpTensorToFileFromDevice(handle, dyDesc, dy, file_name_str + "_dy.bin");
+        }
     }
 }
 
