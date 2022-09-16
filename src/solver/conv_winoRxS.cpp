@@ -186,11 +186,11 @@ inline bool IsShaderContraintsMet(const int R,
     }
 
     const auto n_groups = params.GetStream().GetMaxHardwareComputeUnits();
-    auto Kp1_OH_OW = (K + 1) * OH * OW;
-    auto Cp1_H_W =   (C + 1) *  H *  W;
-    auto K_OH_OW = K * OH * OW;
-    auto C_H_W = C * H * W;
-    auto OHd2_OWd2 = int(std::ceil(OH/2) * std::ceil(OW/2));
+    auto Kp1_OH_OW      = (K + 1) * OH * OW;
+    auto Cp1_H_W        = (C + 1) * H * W;
+    auto K_OH_OW        = K * OH * OW;
+    auto C_H_W          = C * H * W;
+    auto OHd2_OWd2      = int(std::ceil(OH / 2) * std::ceil(OW / 2));
 
     auto stride_one = (params.in_stride == 1 && params.out_stride == 1);
 
