@@ -714,6 +714,7 @@ enable_cppcheck(
         CastIntegerToAddressAtReturn
         knownConditionTrueFalse
         shadowFunction
+        moduloofone
     FORCE
     SOURCES
         addkernels/
