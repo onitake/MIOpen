@@ -193,6 +193,7 @@ inline constexpr const char* Time      = "time";
 inline constexpr const char* Workspace = "workspace";
 inline constexpr const char* Solver    = "solver";
 inline constexpr const char* Problem   = "problem";
+inline constexpr const char* Binary    = "binary";
 } // namespace fields
 
 void to_json(nlohmann::json& json, const Solution::SerializationMetadata& metadata)
@@ -216,6 +217,7 @@ void to_json(nlohmann::json& json, const Solution& solution)
         {fields::Workspace, solution.workspace_required},
         {fields::Solver, solution.solver.ToString()},
         {fields::Problem, solution.problem},
+        {fields::Binary, nlohmann::json::binary_t{solution.binary}},
     };
 }
 
@@ -238,5 +240,6 @@ void from_json(const nlohmann::json& json, Solution& solution)
     json.at(fields::Workspace).get_to(solution.workspace_required);
     solution.solver = json.at(fields::Solver).get<std::string>();
     json.at(fields::Problem).get_to(solution.problem);
+    solution.binary = json.value<nlohmann::json::binary_t>(fields::Binary, {});
 }
 } // namespace miopen

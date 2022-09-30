@@ -97,6 +97,7 @@ private:
     std::size_t workspace_required = 0;
     solver::Id solver;
     Problem problem;
+    std::vector<uint8_t> binary;
 
     void RunImpl(Handle& handle,
                  const std::unordered_map<miopenTensorArgumentId_t, RunInput>& inputs,
