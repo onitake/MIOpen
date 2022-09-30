@@ -48,7 +48,12 @@ struct Solution : miopenSolution
 {
     std::vector<std::uint8_t> serialization_cache;
 
-    Solution() = default;
+    Solution(solver::Id solver_, float time_, std::size_t workspace_required_)
+        : time(time_), workspace_required(workspace_required_), solver(solver_)
+    {
+    }
+
+    Solution() {}
 
     struct SerializationMetadata final
     {

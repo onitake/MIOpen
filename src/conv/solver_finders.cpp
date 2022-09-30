@@ -34,6 +34,7 @@
 namespace miopen {
 
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEVICE_ARCH)
+MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_COMPILE_ONLY)
 
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_CONV_GEMM)
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_CONV_DIRECT)
@@ -285,6 +286,11 @@ void ConvFindCore(const AnyInvokeParams& invoke_ctx,
             AppendPointersToElements(ss.second, all);
         PrecompileSolutions(handle, all);
     }
+
+    if(IsEnabled(MIOPEN_DEBUG_COMPILE_ONLY{}))
+        MIOPEN_THROW(
+            miopenStatusGpuOperationsSkipped,
+            "MIOPEN_DEBUG_COMPILE_ONLY is enabled, escaping forward convolution. Search skipped.");
 
     // Evaluate Invokers
     AutoEnableProfiling enableProfiling{handle};

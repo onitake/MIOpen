@@ -109,6 +109,15 @@ private:
                                             const ConvolutionDescriptor& conv_desc) const;
 
     void TransposeImpl(const ConvolutionDescriptor& conv_desc);
+
+    AnyInvokeParams MakeConvInvokeParams(const TensorDescriptor& x_desc,
+                                         Data_t x,
+                                         const TensorDescriptor& w_desc,
+                                         Data_t w,
+                                         const TensorDescriptor& y_desc,
+                                         Data_t y,
+                                         Data_t workspace,
+                                         size_t workspace_size) const;
 };
 
 } // namespace miopen

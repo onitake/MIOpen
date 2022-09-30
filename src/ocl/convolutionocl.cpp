@@ -23,12 +23,14 @@
  * SOFTWARE.
  *
  *******************************************************************************/
+
+#include <miopen/convolution.hpp>
+
 #include <miopen/algorithm.hpp>
 #include <miopen/conv_algo_name.hpp>
 #include <miopen/conv/solver_finders.hpp>
 #include <miopen/check_numerics.hpp>
 #include <miopen/config.h>
-#include <miopen/convolution.hpp>
 #include <miopen/db.hpp>
 #include <miopen/db_record.hpp>
 #include <miopen/env.hpp>
@@ -39,6 +41,7 @@
 #include <miopen/invoker.hpp>
 #include <miopen/kernel.hpp>
 #include <miopen/solver.hpp>
+#include <miopen/solution.hpp>
 #include <miopen/tensor_ops.hpp>
 #include <miopen/tensor.hpp>
 #include <miopen/util.hpp>
@@ -60,7 +63,6 @@ namespace miopen {
 
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_CONV_PRECISE_ROCBLAS_TIMING)
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_CONV_IMMED_FALLBACK)
-MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_COMPILE_ONLY)
 
 size_t GetKernelGlobalWorkDim(const KernelInvoke& kernel, int dim) { return kernel.gdims[dim]; }
 
@@ -149,11 +151,12 @@ CompileSolution(solver::Id solver_id, ExecutionContext ctx, const conv::ProblemD
     LoadOrPrepareInvoker(ctx, problem, solver_id);
 }
 
-static inline std::vector<PerfField> FindConvolution(const ExecutionContext& ctx,
-                                                     const conv::ProblemDescription& problem,
-                                                     const AnyInvokeParams& invoke_ctx)
+std::vector<Solution> FindConvolution(const ExecutionContext& ctx,
+                                      const conv::ProblemDescription& problem,
+                                      const AnyInvokeParams& invoke_ctx,
+                                      std::size_t max_solutions)
 {
-    auto results         = std::vector<PerfField>{};
+    auto results         = std::vector<Solution>{};
     auto sol             = boost::optional<miopenConvSolution_t>{};
     const auto& conv     = problem.GetConv();
     const auto& findMode = conv.findMode;
@@ -173,32 +176,36 @@ static inline std::vector<PerfField> FindConvolution(const ExecutionContext& ctx
         /// \todo Consider if we need (and want to spend time) for this.
         const auto id = solver::Id{sol->solution_id};
         CompileSolution(id, ctx, problem);
-        results.push_back(
-            {id.GetAlgo(conv::Direction::Forward), id.ToString(), sol->time, sol->workspace_size});
+        results.push_back({id, sol->time, sol->workspace_size});
     }
     else
     {
-        results = UserFindDbRecord::TryLoad(ctx.GetStream(), problem, [&](DbRecord& record) {
-            auto conv_ctx                       = ConvolutionContext{ctx, problem};
-            conv_ctx.use_dynamic_solutions_only = findMode.IsDynamicHybrid(ctx);
+        const auto fdb_results =
+            UserFindDbRecord::TryLoad(ctx.GetStream(), problem, [&](DbRecord& record) {
+                auto conv_ctx                       = ConvolutionContext{ctx, problem};
+                conv_ctx.use_dynamic_solutions_only = findMode.IsDynamicHybrid(ctx);
 
-            ConvFindCore(invoke_ctx,
-                         record,
-                         conv_ctx,
-                         conv.IsWinograd3x3SupportedAndFast(conv_ctx),
-                         GetConvSolverFinders());
-        });
+                ConvFindCore(invoke_ctx,
+                             record,
+                             conv_ctx,
+                             conv.IsWinograd3x3SupportedAndFast(conv_ctx),
+                             GetConvSolverFinders());
+            });
+
+        for (auto&& fdb_result : fdb_results)
+            results.emplace_back(
+                solver::Id{fdb_result.solver_id}, fdb_result.time, fdb_result.workspace);
     }
 
-    if(IsEnabled(MIOPEN_DEBUG_COMPILE_ONLY{}))
-        MIOPEN_THROW(
-            miopenStatusGpuOperationsSkipped,
-            "MIOPEN_DEBUG_COMPILE_ONLY is enabled, escaping forward convolution. Search skipped.");
+    std::sort(std::begin(results), std::end(results), [](auto&& l, auto&& r) {
+        return l.GetTime() < r.GetTime();
+    });
 
-    std::sort(begin(results), end(results));
+    results.resize(std::min(results.size(), max_solutions));
 
     for(const auto& entry : results)
-        MIOPEN_LOG_I(entry.name << "\t" << entry.time << "\t" << entry.workspace);
+        MIOPEN_LOG_I(entry.GetSolver().GetAlgo(problem.GetDirection())
+                     << "\t" << entry.GetTime() << "\t" << entry.GetWorkspaceSize());
 
     return results;
 }
@@ -240,22 +247,24 @@ void ConvolutionDescriptor::FindConvFwdAlgorithm(Handle& handle,
                                                    workSpaceSize,
                                                    attribute.gfx90aFp16alt.GetFwd()};
 
-    const auto results = FindConvolution(ctx, problem, invoke_ctx);
+    const auto results = FindConvolution(ctx, problem, invoke_ctx, requestAlgoCount);
 
     if(results.empty())
         MIOPEN_THROW("Forward Convolution cannot be executed due to incorrect params");
 
-    *returnedAlgoCount = std::min(requestAlgoCount, static_cast<int>(results.size()));
+    *returnedAlgoCount = static_cast<int>(results.size());
 
     for(int i = 0; i < *returnedAlgoCount; i++)
     {
-        perfResults[i].fwd_algo = StringToConvolutionFwdAlgo(results[i].name);
-        perfResults[i].time     = results[i].time;
-        perfResults[i].memory   = results[i].workspace;
+        perfResults[i].fwd_algo =
+            StringToConvolutionFwdAlgo(results[i].GetSolver().GetAlgo(conv::Direction::Forward));
+        perfResults[i].time   = results[i].GetTime();
+        perfResults[i].memory = results[i].GetWorkspaceSize();
     }
 
-    MIOPEN_LOG_I("FW Chosen Algorithm: " << results[0].solver_id << " , " << results[0].workspace
-                                         << ", " << results[0].time);
+    MIOPEN_LOG_I("FW Chosen Algorithm: " << results[0].GetSolver().ToString() << " , "
+                                         << results[0].GetWorkspaceSize()
+                                         << ", " << results[0].GetTime());
 }
 
 void ValidateConvTensors(const ConvTensors& tensors)
@@ -673,23 +682,25 @@ void ConvolutionDescriptor::FindConvBwdDataAlgorithm(Handle& handle,
                                                    workSpaceSize,
                                                    this->attribute.gfx90aFp16alt.GetBwd()};
 
-    const auto results = FindConvolution(ctx, problem, invoke_ctx);
+    const auto results = FindConvolution(ctx, problem, invoke_ctx, requestAlgoCount);
 
     if(results.empty())
         MIOPEN_THROW(miopenStatusUnknownError,
                      "Backward Data Convolution cannot be executed due to incorrect params");
 
-    *returnedAlgoCount = std::min(requestAlgoCount, static_cast<int>(results.size()));
+    *returnedAlgoCount = static_cast<int>(results.size());
 
     for(int i = 0; i < *returnedAlgoCount; i++)
     {
-        perfResults[i].bwd_data_algo = StringToConvolutionBwdDataAlgo(results[i].name);
-        perfResults[i].time          = results[i].time;
-        perfResults[i].memory        = results[i].workspace;
+        perfResults[i].bwd_data_algo = StringToConvolutionBwdDataAlgo(
+            results[i].GetSolver().GetAlgo(conv::Direction::BackwardData));
+        perfResults[i].time   = results[i].GetTime();
+        perfResults[i].memory = results[i].GetWorkspaceSize();
     }
 
-    MIOPEN_LOG_I("BWD Chosen Algorithm: " << results[0].solver_id << " , " << results[0].workspace
-                                          << ", " << results[0].time);
+    MIOPEN_LOG_I("BWD Chosen Algorithm: " << results[0].GetSolver().ToString() << " , "
+                                         << results[0].GetWorkspaceSize() << ", "
+                                         << results[0].GetTime());
 }
 static void ConvBwdCheckNumerics(const Handle& handle,
                                  const ConvBwdTensors& tensors,
@@ -863,21 +874,24 @@ void ConvolutionDescriptor::FindConvBwdWeightsAlgorithm(Handle& handle,
                                                   workSpaceSize,
                                                   attribute.gfx90aFp16alt.GetWrW()};
 
-    const auto results = FindConvolution(ctx, problem, invoke_ctx);
+    const auto results = FindConvolution(ctx, problem, invoke_ctx, requestAlgoCount);
 
     if(results.empty())
         MIOPEN_THROW("Backward Weights Convolution cannot be executed due to incorrect params");
 
-    *returnedAlgoCount = std::min(requestAlgoCount, static_cast<int>(results.size()));
+    *returnedAlgoCount = requestAlgoCount, static_cast<int>(results.size());
 
     for(int i = 0; i < *returnedAlgoCount; i++)
     {
-        perfResults[i].bwd_weights_algo = StringToConvolutionBwdWeightsAlgo(results[i].name);
-        perfResults[i].time             = results[i].time;
-        perfResults[i].memory           = results[i].workspace;
+        perfResults[i].bwd_weights_algo = StringToConvolutionBwdWeightsAlgo(
+            results[i].GetSolver().GetAlgo(conv::Direction::BackwardWeights));
+        perfResults[i].time   = results[i].GetTime();
+        perfResults[i].memory = results[i].GetWorkspaceSize();
     }
-    MIOPEN_LOG_I("BWrW Chosen Algorithm: " << results[0].solver_id << " , " << results[0].workspace
-                                           << ", " << results[0].time);
+
+    MIOPEN_LOG_I("BWrW Chosen Algorithm: " << results[0].GetSolver().ToString() << " , "
+                                          << results[0].GetWorkspaceSize() << ", "
+                                          << results[0].GetTime());
 }
 
 static void ConvWrwCheckNumerics(const Handle& handle,
