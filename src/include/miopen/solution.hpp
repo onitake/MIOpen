@@ -104,6 +104,14 @@ private:
                  std::size_t workspace_size,
                  const ConvolutionDescriptor& conv_desc);
 
+    static AnyInvokeParams MakeInvokeParams(const Problem& problem_,
+                                            const ConvolutionDescriptor& conv_desc,
+                                            const RunInput& x,
+                                            const RunInput& w,
+                                            const RunInput& y,
+                                            Data_t workspace,
+                                            size_t workspace_size);
+
     static Problem Transpose(const Problem& problem, RunInput* x, const RunInput& w, RunInput* y);
 };
 

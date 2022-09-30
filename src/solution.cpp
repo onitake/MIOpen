@@ -98,46 +98,8 @@ void Solution::RunImpl(Handle& handle,
 
     Problem::ValidateGroupCount(*x.descriptor, *w.descriptor, conv_problem.GetConv());
 
-    const auto invoke_ctx = [&]() -> AnyInvokeParams {
-        switch(problem_.GetDirection())
-        {
-        case miopenProblemDirectionForward:
-            return conv::DataInvokeParams(
-                {*x.descriptor, x.buffer, *w.descriptor, w.buffer, *y.descriptor, y.buffer},
-                workspace,
-                workspace_size,
-                conv_problem.GetConv().attribute.gfx90aFp16alt.GetFwd());
-        case miopenProblemDirectionBackward:
-            return conv::DataInvokeParams(
-                {*y.descriptor, y.buffer, *w.descriptor, w.buffer, *x.descriptor, x.buffer},
-                workspace,
-                workspace_size,
-                conv_problem.GetConv().attribute.gfx90aFp16alt.GetBwd());
-        case miopenProblemDirectionBackwardWeights:
-            return conv::WrWInvokeParams{
-                {*y.descriptor, y.buffer, *x.descriptor, x.buffer, *w.descriptor, w.buffer},
-                workspace,
-                workspace_size,
-                conv_problem.GetConv().attribute.gfx90aFp16alt.GetWrW()};
-        default: MIOPEN_THROW(miopenStatusNotImplemented);
-        }
-    }();
-
-    // auto log_tensor = [](auto name, const TensorDescriptor& tensor) {
-    //     std::cerr << name << ": l";
-    //     LogRange(std::cerr, tensor.GetLengths(), "x");
-    //     std::cerr << ", s";
-    //     LogRange(std::cerr, tensor.GetStrides(), "x");
-    //     std::cerr << ", " << GetDataTypeName(tensor.GetType()) << std::endl;
-    // };
-    //
-    // std::cerr << "Transposed: " << (conv_desc.mode == miopenTranspose ? "true" : "false")
-    //           << std::endl;
-    //
-    // std::cerr << "Conv: " << conv_desc << std::endl;
-    // log_tensor("X", *x.descriptor);
-    // log_tensor("W", *w.descriptor);
-    // log_tensor("Y", *y.descriptor);
+    const auto invoke_ctx =
+        MakeInvokeParams(problem_, conv_desc, x, w, y, workspace, workspace_size);
 
     const auto net_cfg       = conv_problem.BuildConfKey();
     const auto found_invoker = handle.GetInvoker(net_cfg, GetSolver());
@@ -171,6 +133,38 @@ void Solution::RunImpl(Handle& handle,
     handle.RegisterInvoker(invoker, net_cfg, GetSolver().ToString());
     invoker(handle, invoke_ctx);
     checkNumericsOutput_();
+}
+
+AnyInvokeParams Solution::MakeInvokeParams(const Problem& problem_,
+                                           const ConvolutionDescriptor& conv_desc,
+                                           const RunInput& x,
+                                           const RunInput& w,
+                                           const RunInput& y,
+                                           Data_t workspace,
+                                           size_t workspace_size)
+{
+    switch(problem_.GetDirection())
+    {
+    case miopenProblemDirectionForward:
+        return conv::DataInvokeParams(
+            {*x.descriptor, x.buffer, *w.descriptor, w.buffer, *y.descriptor, y.buffer},
+            workspace,
+            workspace_size,
+            conv_desc.attribute.gfx90aFp16alt.GetFwd());
+    case miopenProblemDirectionBackward:
+        return conv::DataInvokeParams(
+            {*y.descriptor, y.buffer, *w.descriptor, w.buffer, *x.descriptor, x.buffer},
+            workspace,
+            workspace_size,
+            conv_desc.attribute.gfx90aFp16alt.GetBwd());
+    case miopenProblemDirectionBackwardWeights:
+        return conv::WrWInvokeParams{
+            {*y.descriptor, y.buffer, *x.descriptor, x.buffer, *w.descriptor, w.buffer},
+            workspace,
+            workspace_size,
+            conv_desc.attribute.gfx90aFp16alt.GetWrW()};
+    default: MIOPEN_THROW(miopenStatusNotImplemented);
+    }
 }
 
 Problem Solution::Transpose(const Problem& problem, RunInput* x, const RunInput& w, RunInput* y)
