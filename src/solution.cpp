@@ -183,34 +183,46 @@ Problem Solution::Transpose(const Problem& problem, RunInput* x, const RunInput&
     return transposed;
 }
 
+namespace fields {
+namespace header {
+inline constexpr const char* Validation = "validation";
+inline constexpr const char* Version    = "version";
+} // namespace header
+inline constexpr const char* Header    = "header";
+inline constexpr const char* Time      = "time";
+inline constexpr const char* Workspace = "workspace";
+inline constexpr const char* Solver    = "solver";
+inline constexpr const char* Problem   = "problem";
+} // namespace fields
+
 void to_json(nlohmann::json& json, const Solution::SerializationMetadata& metadata)
 {
     json = nlohmann::json{
-        {"validation", metadata.validation_number},
-        {"version", metadata.version},
+        {fields::header::Validation, metadata.validation_number},
+        {fields::header::Version, metadata.version},
     };
 }
 void from_json(const nlohmann::json& json, Solution::SerializationMetadata& metadata)
 {
-    json.at("validation").get_to(metadata.validation_number);
-    json.at("version").get_to(metadata.version);
+    json.at(fields::header::Validation).get_to(metadata.validation_number);
+    json.at(fields::header::Version).get_to(metadata.version);
 }
 
 void to_json(nlohmann::json& json, const Solution& solution)
 {
     json = nlohmann::json{
-        {"header", Solution::SerializationMetadata::Current()},
-        {"time", solution.time},
-        {"workspace", solution.workspace_required},
-        {"solver", solution.solver.ToString()},
-        {"problem", solution.problem},
+        {fields::Header, Solution::SerializationMetadata::Current()},
+        {fields::Time, solution.time},
+        {fields::Workspace, solution.workspace_required},
+        {fields::Solver, solution.solver.ToString()},
+        {fields::Problem, solution.problem},
     };
 }
 
 void from_json(const nlohmann::json& json, Solution& solution)
 {
     {
-        const auto header = json.at("header").get<Solution::SerializationMetadata>();
+        const auto header = json.at(fields::Header).get<Solution::SerializationMetadata>();
         constexpr const auto check_header = Solution::SerializationMetadata::Current();
 
         if(header.validation_number != check_header.validation_number)
@@ -222,9 +234,9 @@ void from_json(const nlohmann::json& json, Solution& solution)
                 "Data from wrong version has been passed to the solution deserialization.");
     }
 
-    json.at("time").get_to(solution.time);
-    json.at("workspace").get_to(solution.workspace_required);
-    solution.solver = json.at("solver").get<std::string>();
-    json.at("problem").get_to(solution.problem);
+    json.at(fields::Time).get_to(solution.time);
+    json.at(fields::Workspace).get_to(solution.workspace_required);
+    solution.solver = json.at(fields::Solver).get<std::string>();
+    json.at(fields::Problem).get_to(solution.problem);
 }
 } // namespace miopen
