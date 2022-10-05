@@ -638,7 +638,6 @@ enable_clang_tidy(
         #TODO Code Quality WORKAROUND ROCm 5.3 && Ubuntu 22.04 && C++17 && cppcheck 2.9 update
         -bugprone-use-after-move
         -hicpp-invalid-access-moved
-        -modernize-use-nodiscard
         -misc-confusable-identifiers
         -modernize-unary-static-assert
         -modernize-macro-to-enum
@@ -647,11 +646,9 @@ enable_clang_tidy(
         -readability-simplify-boolean-expr
         -bugprone-branch-clone
         -clang-diagnostic-deprecated
-        -hicpp-deprecated-headers
         -hicpp-member-init
         -performance-no-automatic-move
         -clang-analyzer-cplusplus.NewDeleteLeaks
-        -modernize-deprecated-headers
         ${MIOPEN_TIDY_CHECKS}
     ${MIOPEN_TIDY_ERRORS}
     HEADER_FILTER
