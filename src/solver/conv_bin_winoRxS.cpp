@@ -33,7 +33,7 @@
 #include <miopen/conv/data_invoke_params.hpp>
 #include <miopen/conv/tensors.hpp>
 
-#include <boost/any.hpp>
+#include <any>
 
 /// Global switch
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_AMD_WINOGRAD_RXS)

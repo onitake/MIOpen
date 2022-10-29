@@ -85,7 +85,7 @@ struct MDGraph_vertex
 };
 
 using MDGraph_vertex_ptr = std::shared_ptr<MDGraph_vertex>;
-using cur_vertex_map     = std::unordered_map<std::string, boost::any>;
+using cur_vertex_map     = std::unordered_map<std::string, std::any>;
 
 struct FusionMDGraph
 {

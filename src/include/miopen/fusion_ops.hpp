@@ -30,7 +30,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/any.hpp>
+#include <any>
 
 namespace miopen {
 
@@ -69,7 +69,7 @@ enum MDGraph_op_t
 };
 
 std::ostream& operator<<(std::ostream& stream, const MDGraph_op_t& o);
-std::ostream& operator<<(std::ostream& stream, const boost::any& a);
+std::ostream& operator<<(std::ostream& stream, const std::any& a);
 
 // using FusionMDGraph_Op_Map       = std::unordered_map<std::string, EdgeOp>;
 using FusionMDGraph_Edge_Map     = std::unordered_map<std::string, std::vector<std::string>>;

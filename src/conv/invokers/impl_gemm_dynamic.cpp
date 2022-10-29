@@ -5,7 +5,7 @@
 #include <miopen/tensor_ops.hpp>
 #include <miopen/solver/implicitgemm_util.hpp>
 #include <miopen/util_sol.hpp>
-#include <boost/any.hpp>
+#include <any>
 
 namespace miopen {
 namespace conv {

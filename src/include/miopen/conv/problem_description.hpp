@@ -32,7 +32,7 @@
 #include <miopen/sqlite_db.hpp>
 #include <miopen/tensor.hpp>
 
-#include <boost/any.hpp>
+#include <any>
 
 namespace miopen {
 

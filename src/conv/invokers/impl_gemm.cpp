@@ -5,7 +5,7 @@
 #include <miopen/handle.hpp>
 #include <miopen/tensor_ops.hpp>
 
-#include <boost/any.hpp>
+#include <any>
 
 namespace miopen {
 namespace conv {

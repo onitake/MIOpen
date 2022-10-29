@@ -38,7 +38,7 @@
 #include <miopen/util.hpp>
 #include <miopen/conv/data_invoke_params.hpp>
 
-#include <boost/any.hpp>
+#include <any>
 #include <boost/range/adaptors.hpp>
 
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_CONV_PRECISE_ROCBLAS_TIMING)

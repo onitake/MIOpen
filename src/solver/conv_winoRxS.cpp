@@ -36,7 +36,7 @@
 #include <miopen/sequences.hpp>
 #include <miopen/stringutils.hpp>
 
-#include <boost/any.hpp>
+#include <any>
 #include <optional>
 
 #include <tuple>

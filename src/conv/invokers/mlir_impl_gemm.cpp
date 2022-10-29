@@ -34,7 +34,7 @@
 
 #include <Miir.h>
 
-#include <boost/any.hpp>
+#include <any>
 #include <boost/range/adaptors.hpp>
 
 #if MIIR_VERSION_FLAT >= 6

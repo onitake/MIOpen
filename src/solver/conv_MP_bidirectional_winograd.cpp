@@ -38,7 +38,7 @@
 #include <miopen/generic_search.hpp>
 #include <miopen/conv/invokers/impl_gemm.hpp>
 
-#include <boost/any.hpp>
+#include <any>
 #include <miopen/conv/data_invoke_params.hpp>
 
 #if MIOPEN_BACKEND_HIP

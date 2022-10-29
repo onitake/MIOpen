@@ -4,9 +4,6 @@
 
 #include <driver.hpp>
 
-#include <boost/range/algorithm/find.hpp>
-#include <boost/range/irange.hpp>
-
 #include <array>
 #include <chrono>
 #include <iostream>
@@ -227,7 +224,7 @@ struct BoostImpl
 template <>
 struct BoostImpl<Sequences::IRange>
 {
-    bool Next(TestData& v) const { return miopen::seq::Next(boost::irange(0, 9), v.x); }
+    bool Next(TestData& v) const { return miopen::seq::Next(std::ranges::iota_view(0, 9), v.x); }
 };
 
 struct SpeedTestDriver : public test_driver

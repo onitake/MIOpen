@@ -86,9 +86,9 @@ MDGraph_vertex_ptr FusionMDGraph::GetCurVertex(const Handle& handle)
 
         auto xnack_sup = !(cur.first->supported_xnack && target.Xnack() &&
                            *cur.first->supported_xnack != *target.Xnack());
-        if((boost::any_cast<int>(cur.second["weight"]) > weight) && arch_sup && xnack_sup)
+        if((std::any_cast<int>(cur.second["weight"]) > weight) && arch_sup && xnack_sup)
         {
-            weight = boost::any_cast<int>(cur.second["weight"]);
+            weight = std::any_cast<int>(cur.second["weight"]);
             ptr    = cur.first;
         }
     }
@@ -102,8 +102,8 @@ std::vector<solver::AnySolver> FusionMDGraph::GetSolvers()
               cur_vertex.end(),
               [&](const std::pair<MDGraph_vertex_ptr, cur_vertex_map>& a,
                   const std::pair<MDGraph_vertex_ptr, cur_vertex_map>& b) {
-                  return boost::any_cast<int>(a.second.at("weight")) >
-                         boost::any_cast<int>(b.second.at("weight"));
+                  return std::any_cast<int>(a.second.at("weight")) >
+                         std::any_cast<int>(b.second.at("weight"));
               });
 
     // return a vector of just the solvers
@@ -112,7 +112,7 @@ std::vector<solver::AnySolver> FusionMDGraph::GetSolvers()
     {
         if(cur.second.find("solver") != cur.second.end())
         {
-            res.push_back(boost::any_cast<solver::AnySolver>(cur.second.at("solver")));
+            res.push_back(std::any_cast<solver::AnySolver>(cur.second.at("solver")));
         }
     }
     return res;
@@ -204,7 +204,7 @@ bool FusionMDGraph::SetConvAlgo(miopenConvFwdAlgorithm_t algo)
         auto& cur_map = kinder.second;
         if(cur_map.find("algo") != cur_map.end())
         {
-            miopenConvFwdAlgorithm_t a = boost::any_cast<miopenConvFwdAlgorithm_t>(cur_map["algo"]);
+            miopenConvFwdAlgorithm_t a = std::any_cast<miopenConvFwdAlgorithm_t>(cur_map["algo"]);
             if(a == algo)
             {
                 new_list.emplace_back(kinder.first, cur_map);
@@ -1098,14 +1098,14 @@ bool FusionMDGraph::Advance(std::shared_ptr<FusionOpDescriptor> op,
         for(auto& ch_it : ch)
         {
             auto cur_map = kinder.second;
-            MIOPEN_LOG_I2("Current path weight: " << boost::any_cast<int>(cur_map["weight"]));
+            MIOPEN_LOG_I2("Current path weight: " << std::any_cast<int>(cur_map["weight"]));
             MIOPEN_LOG_I2("Child: " << *ch_it.first);
             std::set<miopenConvFwdAlgorithm_t> cur_path_set;
             if(ch_it.first->op == op->kind())
             {
                 for(auto& edg_map : ch_it.second)
                 {
-                    int weight = boost::any_cast<int>(cur_map["weight"]);
+                    int weight = std::any_cast<int>(cur_map["weight"]);
                     std::unordered_map<std::string, int> syms;
                     if(CmpOpKey(edg_map, attr_fun, syms))
                     {
@@ -1162,7 +1162,7 @@ bool FusionMDGraph::Advance(std::shared_ptr<FusionOpDescriptor> op,
                     }
                 }
             }
-            MIOPEN_LOG_I2("Current path final weight: " << boost::any_cast<int>(cur_map["weight"]));
+            MIOPEN_LOG_I2("Current path final weight: " << std::any_cast<int>(cur_map["weight"]));
         }
     }
     cur_vertex = new_list;
@@ -1179,8 +1179,8 @@ bool FusionMDGraph::Advance(std::shared_ptr<FusionOpDescriptor> op,
               cur_vertex.end(),
               [&](const std::pair<MDGraph_vertex_ptr, cur_vertex_map>& a,
                   const std::pair<MDGraph_vertex_ptr, cur_vertex_map>& b) {
-                  return boost::any_cast<int>(a.second.at("weight")) >
-                         boost::any_cast<int>(b.second.at("weight"));
+                  return std::any_cast<int>(a.second.at("weight")) >
+                         std::any_cast<int>(b.second.at("weight"));
               });
 
     return (!cur_vertex.empty());
@@ -1213,24 +1213,24 @@ std::unordered_map<int, std::string> enum_map(U lst)
     return m;
 }
 
-std::string any_string(const boost::any& a)
+std::string any_string(const std::any& a)
 {
     if(a.type() == typeid(std::string))
-        return boost::any_cast<std::string>(a);
+        return std::any_cast<std::string>(a);
     else if(a.type() == typeid(int))
-        return std::to_string(boost::any_cast<int>(a));
+        return std::to_string(std::any_cast<int>(a));
     else if(a.type() == typeid(miopenConvolutionMode_t))
-        return std::to_string(boost::any_cast<miopenConvolutionMode_t>(a));
+        return std::to_string(std::any_cast<miopenConvolutionMode_t>(a));
     else if(a.type() == typeid(miopenPaddingMode_t))
-        return std::to_string(boost::any_cast<miopenPaddingMode_t>(a));
+        return std::to_string(std::any_cast<miopenPaddingMode_t>(a));
     else if(a.type() == typeid(size_t))
-        return std::to_string(boost::any_cast<size_t>(a));
+        return std::to_string(std::any_cast<size_t>(a));
     else if(a.type() == typeid(miopenBatchNormMode_t))
-        return std::to_string(boost::any_cast<miopenBatchNormMode_t>(a));
+        return std::to_string(std::any_cast<miopenBatchNormMode_t>(a));
     else if(a.type() == typeid(miopenActivationMode_t))
-        return std::to_string(boost::any_cast<miopenActivationMode_t>(a));
+        return std::to_string(std::any_cast<miopenActivationMode_t>(a));
     else if(a.type() == typeid(miopenDataType_t))
-        return std::to_string(boost::any_cast<miopenDataType_t>(a));
+        return std::to_string(std::any_cast<miopenDataType_t>(a));
     else
         return ""; // assert(false);
 }

@@ -33,7 +33,7 @@
 #include <miopen/env.hpp>
 #include <miopen/tensor.hpp>
 
-#include <boost/any.hpp>
+#include <any>
 
 namespace miopen {
 namespace solver {

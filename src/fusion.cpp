@@ -1104,7 +1104,7 @@ miopenStatus_t FusionPlanDescriptor::Compile(Handle& handle)
             solver::AnySolver sol;
             if(kinder.second.find("solver") != kinder.second.end())
             {
-                sol = boost::any_cast<solver::AnySolver>(kinder.second.at("solver"));
+                sol = std::any_cast<solver::AnySolver>(kinder.second.at("solver"));
             }
             program_name = kinder.first->vertex_data.at("program");
             auto d       = handle.GetDeviceName();

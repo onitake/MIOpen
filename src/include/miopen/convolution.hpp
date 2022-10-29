@@ -39,7 +39,7 @@
 
 #include <nlohmann/json_fwd.hpp>
 
-#include <boost/any.hpp>
+#include <any>
 
 #include <string>
 #include <tuple>
