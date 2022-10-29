@@ -64,14 +64,15 @@
 #include <vector>
 #include <type_traits>
 #include <boost/range/adaptors.hpp>
-#include <boost/optional/optional_io.hpp>
+
+#include <optional>
 #include <../test/verify.hpp>
 #include <../test/serialize.hpp>
 #include <../test/tensor_holder.hpp>
 #include <../test/cpu_conv.hpp>
 #include <../test/cpu_bias.hpp>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 // Declare hidden function for MIGraphX to smoke test it.
 extern "C" miopenStatus_t miopenHiddenSetConvolutionFindMode(miopenConvolutionDescriptor_t convDesc,
@@ -274,7 +275,7 @@ private:
 
     InputFlags inflags;
 
-    boost::optional<uint64_t> immediate_solution;
+    std::optional<uint64_t> immediate_solution;
 
     miopenTensorDescriptor_t inputTensor;
     miopenTensorDescriptor_t weightTensor;

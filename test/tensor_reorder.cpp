@@ -31,7 +31,7 @@
 #include <miopen/general_tensor_reorder_sol.hpp>
 #include <miopen/invoker.hpp>
 #include <miopen/invoke_params.hpp>
-#include <boost/optional.hpp>
+#include <optional>
 #include <vector>
 #include <cstdlib>
 #include <ctime>
@@ -449,7 +449,7 @@ struct tensor_reorder_driver : tensor_reorder_base_driver
             const auto invoke_param = reorder_invoke_param{
                 DataCast(static_cast<const void*>(src_dev)), DataCast(dst_dev)};
             std::vector<OpKernelArg> opArgs = reorder_sol->GetKernelArg();
-            boost::optional<miopen::InvokerFactory> invoker_factory(
+            std::optional<miopen::InvokerFactory> invoker_factory(
                 [=](const std::vector<miopen::Kernel>& kernels) mutable {
                     return [=](const miopen::Handle& handle,
                                const miopen::AnyInvokeParams& primitive_param) mutable {
@@ -478,7 +478,7 @@ struct tensor_reorder_driver : tensor_reorder_base_driver
                                 order_1,
                                 order_2,
                                 order_3);
-            invoker_factory = boost::none;
+            invoker_factory = std::nullopt;
 #if MIOPEN_BACKEND_OPENCL
             status = clEnqueueReadBuffer(
                 q, dst_dev, CL_TRUE, 0, workspace, t_dst_gpu.data.data(), 0, nullptr, nullptr);

@@ -36,7 +36,7 @@
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
-#include <boost/optional.hpp>
+#include <optional>
 #include <boost/thread.hpp>
 
 #include <array>
@@ -58,13 +58,13 @@ static boost::filesystem::path& exe_path()
     static boost::filesystem::path exe_path;
     return exe_path;
 }
-static boost::optional<std::string>& thread_logs_root()
+static std::optional<std::string>& thread_logs_root()
 {
     // NOLINTNEXTLINE (cppcoreguidelines-avoid-non-const-global-variables)
     static std::mutex mutex;
     std::lock_guard<std::mutex> lock(mutex);
     // NOLINTNEXTLINE (cppcoreguidelines-avoid-non-const-global-variables)
-    static boost::optional<std::string> path(boost::none);
+    static std::optional<std::string> path(std::nullopt);
     return path;
 }
 
@@ -305,7 +305,7 @@ protected:
                                     const std::array<std::pair<std::string, TValue>, count> values,
                                     TDb db)
     {
-        boost::optional<DbRecord> record = db.FindRecord(key);
+        std::optional<DbRecord> record = db.FindRecord(key);
 
         EXPECT(record);
 

@@ -170,7 +170,7 @@ std::string LoadBinary(const TargetProperties& target,
     if(record)
     {
         MIOPEN_LOG_I2("Successfully loaded binary for: " << verbose_name << "; args: " << args);
-        return record.get();
+        return record.value();
     }
     else
     {

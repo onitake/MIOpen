@@ -36,7 +36,7 @@
 #include <miopen/ramdb.hpp>
 #include <miopen/readonlyramdb.hpp>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 #include <functional>
 #include <vector>
@@ -67,7 +67,7 @@ namespace debug {
 
 // For unit tests.
 extern bool testing_find_db_enabled; // NOLINT (cppcoreguidelines-avoid-non-const-global-variables)
-extern boost::optional<std::string>&
+extern std::optional<std::string>&
 testing_find_db_path_override(); /// \todo Remove when #1723 is resolved.
 
 } // namespace debug
@@ -95,15 +95,15 @@ public:
           installed_path(debug::testing_find_db_path_override()
                              ? *debug::testing_find_db_path_override()
                              : GetInstalledPath(handle)),
-          db(boost::make_optional<DbTimer<TDb>>(debug::testing_find_db_enabled &&
-                                                    !IsEnabled(MIOPEN_DEBUG_DISABLE_FIND_DB{}),
-                                                DbTimer<TDb>{installed_path, path}))
+          db(debug::testing_find_db_enabled && !IsEnabled(MIOPEN_DEBUG_DISABLE_FIND_DB{})
+                 ? std::make_optional<DbTimer<TDb>>(DbTimer<TDb>{installed_path, path})
+                 : std::nullopt)
     {
-        if(!db.is_initialized())
+        if(!db.has_value())
             return;
 
         content = db->FindRecord(problem);
-        in_sync = content.is_initialized();
+        in_sync = content.has_value();
     }
 
     template <class TProblemDescription, class TTestDb = TDb>
@@ -111,25 +111,25 @@ public:
         : path(debug::testing_find_db_path_override() ? *debug::testing_find_db_path_override()
                                                       : GetUserPath(handle)),
 #if MIOPEN_DISABLE_USERDB
-          db(boost::optional<DbTimer<TDb>>{})
+          db(std::optional<DbTimer<TDb>>{})
 #else
-          db(boost::make_optional<DbTimer<TDb>>(debug::testing_find_db_enabled &&
-                                                    !IsEnabled(MIOPEN_DEBUG_DISABLE_FIND_DB{}),
-                                                DbTimer<TDb>{path, false}))
+          db(debug::testing_find_db_enabled && !IsEnabled(MIOPEN_DEBUG_DISABLE_FIND_DB{})
+                   ? std::make_optional<DbTimer<TDb>>(DbTimer<TDb>{path, false})
+                   : std::nullopt)
 #endif
     {
-        if(!db.is_initialized())
+        if(!db.has_value())
             return;
 
         content = db->FindRecord(problem);
-        in_sync = content.is_initialized();
+        in_sync = content.has_value();
     }
 
     ~FindDbRecord_t()
     {
-        if(!db.is_initialized() || !content.is_initialized() || in_sync)
+        if(!db.has_value() || !content.has_value() || in_sync)
             return;
-        if(!db->StoreRecord(content.get()))
+        if(!db->StoreRecord(content.value()))
             MIOPEN_LOG_E("Failed to store record to find-db at <" << path << ">");
     }
 
@@ -137,7 +137,7 @@ public:
     auto begin() { return content->As<FindDbData>().begin(); }
     auto end() const { return content->As<FindDbData>().end(); }
     auto end() { return content->As<FindDbData>().end(); }
-    bool empty() const { return !content.is_initialized(); }
+    bool empty() const { return !content.has_value(); }
 
     template <class TProblemDescription>
     static std::vector<PerfField> TryLoad(Handle& handle,
@@ -168,8 +168,8 @@ public:
 private:
     std::string path;
     std::string installed_path;
-    boost::optional<DbTimer<TDb>> db;
-    boost::optional<DbRecord> content{boost::none};
+    std::optional<DbTimer<TDb>> db;
+    std::optional<DbRecord> content{std::nullopt};
     bool in_sync = false;
 
     static bool HasKernel(Handle& handle, const FindDbKCacheKey& key);

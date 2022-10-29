@@ -39,7 +39,7 @@
 #include <miopen/write_file.hpp>
 #include <miopen/env.hpp>
 #include <miopen/comgr.hpp>
-#include <boost/optional.hpp>
+#include <optional>
 
 #include <cstring>
 #include <mutex>
@@ -388,7 +388,7 @@ std::string HIPOCProgram::GetCodeObjectBlob() const
 
 void HIPOCProgram::FreeCodeObjectFileStorage()
 {
-    impl->dir = boost::none;
+    impl->dir = std::nullopt;
     impl->hsaco_file.clear();
 }
 

@@ -30,8 +30,7 @@
 #include <miopen/rank.hpp>
 
 #include <boost/core/explicit_operator_bool.hpp>
-#include <boost/none.hpp>
-#include <boost/optional/optional.hpp>
+#include <optional>
 
 #include <chrono>
 #include <string>
@@ -61,10 +60,10 @@ public:
     PlainTextDb(const std::string& filename_, bool is_system = false);
 
     /// Searches db for provided key and returns found record or none if key not found in database
-    boost::optional<DbRecord> FindRecord(const std::string& key);
+    std::optional<DbRecord> FindRecord(const std::string& key);
 
     template <class T>
-    inline boost::optional<DbRecord> FindRecord(const T& problem_config)
+    inline std::optional<DbRecord> FindRecord(const T& problem_config)
     {
         const auto key = DbRecord::Serialize(problem_config);
         return FindRecord(key);
@@ -115,7 +114,7 @@ public:
     ///
     /// Returns updated record or none if update was unsuccessful.
     template <class T, class V>
-    inline boost::optional<DbRecord>
+    inline std::optional<DbRecord>
     Update(const T& problem_config, const std::string& id, const V& values)
     {
         DbRecord record(problem_config);
@@ -124,7 +123,7 @@ public:
         if(ok)
             return record;
         else
-            return boost::none;
+            return std::nullopt;
     }
 
     /// Searches for record with key PROBLEM_CONFIG and gets VALUES under the ID from it.
@@ -147,7 +146,7 @@ protected:
     LockFile& GetLockFile() { return lock_file; }
     const std::string& GetFileName() const { return filename; }
     bool IsWarningIfUnreadable() const { return warning_if_unreadable; }
-    boost::optional<DbRecord> FindRecordUnsafe(const std::string& key, RecordPositions* pos);
+    std::optional<DbRecord> FindRecordUnsafe(const std::string& key, RecordPositions* pos);
     bool StoreRecordUnsafe(const DbRecord& record);
     bool UpdateRecordUnsafe(DbRecord& record);
     bool RemoveRecordUnsafe(const std::string& key);
@@ -160,7 +159,7 @@ private:
     bool FlushUnsafe(const DbRecord& record, const RecordPositions* pos);
 
     template <class T>
-    inline boost::optional<DbRecord> FindRecordUnsafe(const T& problem_config)
+    inline std::optional<DbRecord> FindRecordUnsafe(const T& problem_config)
     {
         const auto key = DbRecord::Serialize(problem_config);
         return FindRecordUnsafe(key, nullptr);

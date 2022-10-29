@@ -38,7 +38,7 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
-#include <boost/optional/optional.hpp>
+#include <optional>
 namespace miopen {
 
 // Tensor Helper APIs
@@ -166,7 +166,7 @@ struct ProblemDescription
     struct Direction
     {
     public:
-        bool IsKnown() const { return v != boost::none; }
+        bool IsKnown() const { return v != std::nullopt; }
         bool IsForward() const { return v == conv::Direction::Forward; }
         bool IsBackwardData() const { return v == conv::Direction::BackwardData; }
         bool IsBackwardWrW() const { return v == conv::Direction::BackwardWeights; }
@@ -175,7 +175,7 @@ struct ProblemDescription
         Direction(conv::Direction value) : v(value) {}
 
     private:
-        boost::optional<conv::Direction> v;
+        std::optional<conv::Direction> v;
         void Set(conv::Direction value) { v = value; }
 
         friend struct ProblemDescription;

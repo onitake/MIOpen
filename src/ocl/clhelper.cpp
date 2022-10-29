@@ -187,7 +187,7 @@ ClProgramPtr LoadProgram(cl_context ctx,
 
     if(miopen::EndsWith(program_name, ".cpp"))
     {
-        boost::optional<miopen::TmpDir> dir(program_name);
+        std::optional<miopen::TmpDir> dir(program_name);
 #if MIOPEN_BUILD_DEV
         params += " -Werror";
 #ifdef __linux__

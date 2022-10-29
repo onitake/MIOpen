@@ -33,7 +33,7 @@
 #include <miopen/rocm_features.hpp>
 #include <miopen/solver/implicitgemm_util.hpp>
 #include <miopen/target_properties.hpp>
-#include <boost/optional.hpp>
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -42,7 +42,7 @@ MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_HIP_DUMP)
 
 namespace miopen {
 
-static boost::filesystem::path HipBuildImpl(boost::optional<TmpDir>& tmp_dir,
+static boost::filesystem::path HipBuildImpl(std::optional<TmpDir>& tmp_dir,
                                             const std::string& filename,
                                             std::string src,
                                             std::string params,
@@ -156,7 +156,7 @@ static boost::filesystem::path HipBuildImpl(boost::optional<TmpDir>& tmp_dir,
 static bool
 HipBuildTest(const std::string& program_name, std::string params, const TargetProperties& target)
 {
-    boost::optional<miopen::TmpDir> dir(program_name);
+    std::optional<miopen::TmpDir> dir(program_name);
     std::string source = miopen::GetKernelSrc(program_name);
     try
     {
@@ -190,7 +190,7 @@ static bool DetectIfBufferAtomicFaddReturnsFloat(const TargetProperties& target)
 }
 #endif
 
-boost::filesystem::path HipBuild(boost::optional<TmpDir>& tmp_dir,
+boost::filesystem::path HipBuild(std::optional<TmpDir>& tmp_dir,
                                  const std::string& filename,
                                  std::string src,
                                  std::string params,

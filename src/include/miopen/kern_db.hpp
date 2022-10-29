@@ -35,8 +35,7 @@
 #include <miopen/md5.hpp>
 
 #include <boost/core/explicit_operator_bool.hpp>
-#include <boost/none.hpp>
-#include <boost/optional/optional.hpp>
+#include <optional>
 
 #include <string>
 #include <chrono>
@@ -115,10 +114,10 @@ public:
     }
 
     template <typename T>
-    boost::optional<std::string> FindRecordUnsafe(const T& problem_config)
+    std::optional<std::string> FindRecordUnsafe(const T& problem_config)
     {
         if(filename.empty())
-            return boost::none;
+            return std::nullopt;
         // Where clause with inserted values defeats the purpose of a prepraed statement
         auto select_query = "SELECT kernel_blob, kernel_hash, uncompressed_size FROM " +
                             T::table_name() + " WHERE " + problem_config.Where() + ";";
@@ -142,10 +141,10 @@ public:
             return decompressed_blob;
         }
         else if(rc == SQLITE_DONE)
-            return boost::none;
+            return std::nullopt;
         else
             MIOPEN_THROW(miopenStatusInternalError, sql.ErrorMessage());
-        return boost::none;
+        return std::nullopt;
     }
 
     template <typename T>

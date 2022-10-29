@@ -44,10 +44,10 @@ namespace debug {
 bool testing_find_db_enabled = true; // NOLINT (cppcoreguidelines-avoid-non-const-global-variables)
 
 /// \todo Remove when #1723 is resolved.
-boost::optional<std::string>& testing_find_db_path_override()
+std::optional<std::string>& testing_find_db_path_override()
 {
     // NOLINTNEXTLINE (cppcoreguidelines-avoid-non-const-global-variables)
-    static boost::optional<std::string> data = boost::none;
+    static std::optional<std::string> data = std::nullopt;
     return data;
 }
 

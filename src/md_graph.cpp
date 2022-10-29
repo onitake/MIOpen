@@ -544,7 +544,7 @@ void FusionMDGraph::InitConv(FusionMDGraph& g)
                             MDGraph_vertex_ptr conv_v,
                             std::function<std::vector<DefaultKernelArg>(void)> nodeArgs,
                             const std::vector<std::string> supported_arch,
-                            const boost::optional<bool> supported_xnack) {
+                            const std::optional<bool> supported_xnack) {
             FusionMDGraph_Edge_Map edg_activ_relu;
             edg_activ_relu["constraints"] = {"activ_mode == miopenActivationRELU", "weight === 0"};
             FusionMDGraph_Edge_Map edg_activ_leaky_relu;

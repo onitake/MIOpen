@@ -1710,7 +1710,7 @@ void ConvolutionDescriptor::ConvolutionBackwardWeights(const Handle& handle,
             static_cast<miopenConvAlgorithm_t>(algo), direction)};
         decltype(auto) ctx = conv::ProblemDescription{dyDesc, dwDesc, xDesc, *this, direction};
         decltype(auto) network_config = ctx.BuildConfKey();
-        decltype(auto) invoker = handle.GetInvoker(network_config, boost::none, algorithm_name);
+        decltype(auto) invoker = handle.GetInvoker(network_config, std::nullopt, algorithm_name);
 
         if(!invoker)
             MIOPEN_THROW("No invoker was registered for convolution weights. Was find executed?");

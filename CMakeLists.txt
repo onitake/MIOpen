@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 ################################################################################
-cmake_minimum_required( VERSION 3.11 )
+cmake_minimum_required( VERSION 3.11...3.13 )
 
 macro(set_var_to_condition var)
     if(${ARGN})
@@ -187,7 +187,8 @@ if( MIOPEN_BACKEND STREQUAL "OpenCL")
     set (HIP_CXX_COMPILER ${MIOPEN_HIP_COMPILER})
 endif()
 
-
+# print CMAKE Version in system
+message(STATUS "Build with CMAKE version ${CMAKE_VERSION}")
 # HIP is always required
 find_package(hip REQUIRED PATHS /opt/rocm)
 message(STATUS "Build with HIP ${hip_VERSION}")

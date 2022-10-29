@@ -32,7 +32,7 @@
 #include <miopen/batched_transpose_sol.hpp>
 #include <miopen/invoker.hpp>
 #include <miopen/invoke_params.hpp>
-#include <boost/optional.hpp>
+#include <optional>
 #include <vector>
 #include <cstdlib>
 #include <ctime>
@@ -354,7 +354,7 @@ struct transpose_test : transpose_base
 
             std::vector<OpKernelArg> opArgs = transpose_sol.GetKernelArg();
 
-            boost::optional<miopen::InvokerFactory> invoker_factory(
+            std::optional<miopen::InvokerFactory> invoker_factory(
                 [=](const std::vector<miopen::Kernel>& kernels) mutable {
                     return [=](const miopen::Handle& handle,
                                const miopen::AnyInvokeParams& primitive_param) mutable {

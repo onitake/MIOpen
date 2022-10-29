@@ -31,12 +31,12 @@
 #include <miopen/kernel.hpp>
 #include <miopen/tmp_dir.hpp>
 #include <miopen/write_file.hpp>
-#include <boost/optional.hpp>
+#include <optional>
 #include <string>
 
 namespace miopen {
 
-boost::filesystem::path HipBuild(boost::optional<miopen::TmpDir>& tmp_dir,
+boost::filesystem::path HipBuild(std::optional<miopen::TmpDir>& tmp_dir,
                                  const std::string& filename,
                                  std::string src,
                                  std::string params,

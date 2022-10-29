@@ -37,7 +37,7 @@
 #include <miopen/stringutils.hpp>
 
 #include <boost/any.hpp>
-#include <boost/optional.hpp>
+#include <optional>
 
 #include <tuple>
 
@@ -563,7 +563,7 @@ bool ConvBinWinoRxS<Winodata, Winofilter>::IsApplicable(const ConvolutionContext
 }
 
 template <int Winodata, int Winofilter>
-static inline boost::optional<PerformanceConfigConvBinWinogradRxS>
+static inline std::optional<PerformanceConfigConvBinWinogradRxS>
 GetPerfConfFromEnv(const ConvolutionContext& ctx)
 {
     PerformanceConfigConvBinWinogradRxS fromEnv;
@@ -590,7 +590,7 @@ GetPerfConfFromEnv(const ConvolutionContext& ctx)
     if(!fromEnv.Deserialize(s) || !fromEnv.IsValid(ctx))
     {
         MIOPEN_LOG_E(env_name << "Tuning config: Bad value or invalid format: `" << s << '\'');
-        return boost::none;
+        return std::nullopt;
     }
 
     MIOPEN_LOG_I("Overridden from env: " << fromEnv.ToString());

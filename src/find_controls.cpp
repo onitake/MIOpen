@@ -33,7 +33,7 @@
 #include <miopen/solver_id.hpp>
 #include <miopen/stringutils.hpp>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 #include <ostream>
 #include <cstdlib>
@@ -100,7 +100,7 @@ FindEnforceAction GetFindEnforceAction()
     return val;
 }
 
-boost::optional<std::vector<solver::Id>> GetEnvFindOnlySolverImpl()
+std::optional<std::vector<solver::Id>> GetEnvFindOnlySolverImpl()
 {
     static_assert(miopen::solver::Id::invalid_value == 0, "miopen::solver::Id::invalid_value == 0");
     const char* const p_asciz = miopen::GetStringEnv(MIOPEN_DEBUG_FIND_ONLY_SOLVER{});
@@ -138,7 +138,7 @@ boost::optional<std::vector<solver::Id>> GetEnvFindOnlySolverImpl()
         }
     }
     if(res.empty())
-        return boost::none;
+        return std::nullopt;
     else
         return {res};
 }
@@ -152,7 +152,7 @@ std::ostream& operator<<(std::ostream& os, const FindEnforce& val)
     return os << ToCString(val.action) << '(' << static_cast<int>(val.action) << ')';
 }
 
-boost::optional<std::vector<solver::Id>> GetEnvFindOnlySolver()
+std::optional<std::vector<solver::Id>> GetEnvFindOnlySolver()
 {
     static const auto once = GetEnvFindOnlySolverImpl();
     return once;

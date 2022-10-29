@@ -28,7 +28,7 @@
 
 #include <miopen/miopen.h>
 
-#include <boost/optional.hpp>
+#include <optional>
 
 #include <map>
 #include <string>
