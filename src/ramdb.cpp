@@ -31,8 +31,8 @@
 #include <miopen/logger.hpp>
 #include <miopen/md5.hpp>
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
+#include <filesystem>
 
 #include <chrono>
 #include <ctime>
@@ -296,7 +296,7 @@ bool RamDb::ValidateUnsafe()
 {
     if(DisableUserDbFileIO)
         return true;
-    if(!boost::filesystem::exists(GetFileName()))
+    if(!std::filesystem::exists(GetFileName()))
         return cache.empty();
     const auto file_mod_time     = GetDbModificationTime(GetFileName());
     const auto validation_result = file_mod_time < file_read_time;

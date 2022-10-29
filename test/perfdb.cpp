@@ -34,8 +34,8 @@
 #include <miopen/readonlyramdb.hpp>
 #include <miopen/temp_file.hpp>
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
+#include <filesystem>
 #include <optional>
 
 #include <array>
@@ -65,10 +65,10 @@ private:
     bool cached;
 };
 
-static boost::filesystem::path& exe_path()
+static std::filesystem::path& exe_path()
 {
     // NOLINTNEXTLINE (cppcoreguidelines-avoid-non-const-global-variables)
-    static boost::filesystem::path exe_path;
+    static std::filesystem::path exe_path;
     return exe_path;
 }
 

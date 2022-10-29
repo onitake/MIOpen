@@ -265,7 +265,7 @@ static void AmdgcnAssembleQuiet(const std::string& source, const std::string& pa
 
 static bool GcnAssemblerHasBug34765Impl()
 {
-    auto p = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+    auto p = std::filesystem::temp_directory_path() / std::tmpnam(nullptr);
     miopen::WriteFile(miopen::GetKernelSrc("bugzilla_34765_detect.s"), p);
     const auto& src = p.string();
     try
@@ -288,7 +288,7 @@ static bool GcnAssemblerHasBug34765()
 
 static bool GcnAssemblerSupportsOption(const std::string& option)
 {
-    auto p = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
+    auto p = std::filesystem::temp_directory_path() / std::tmpnam(nullptr);
     miopen::WriteFile(miopen::GetKernelSrc("dummy_kernel.s"), p);
     const auto& src = p.string();
     try

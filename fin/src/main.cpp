@@ -82,7 +82,7 @@ int main(int argc, char* argv[], char* envp[])
     {
         if(args[i] == "-i")
         {
-            if(!boost::filesystem::exists(args[i + 1]))
+            if(!std::filesystem::exists(args[i + 1]))
             {
                 std::cerr << "File: " << args[i + 1] << " does not exist" << std::endl;
                 exit(-1);
@@ -95,8 +95,8 @@ int main(int argc, char* argv[], char* envp[])
         }
     }
 
-    boost::filesystem::path input_filename(MapInputs['i']);
-    boost::filesystem::path output_filename(MapInputs['o']);
+    std::filesystem::path input_filename(MapInputs['i']);
+    std::filesystem::path output_filename(MapInputs['o']);
 
     // The JSON is a list of commands, so we iterate over the list and then
     // process each map

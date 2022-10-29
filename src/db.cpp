@@ -31,8 +31,8 @@
 #include <miopen/md5.hpp>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
+#include <filesystem>
 #include <optional>
 
 #include <algorithm>
@@ -61,15 +61,15 @@ PlainTextDb::PlainTextDb(const std::string& filename_, bool is_system)
 
     if(!DisableUserDbFileIO)
     {
-        auto file            = boost::filesystem::path(filename_);
+        auto file            = std::filesystem::path(filename_);
         const auto directory = file.remove_filename();
 
-        if(!(boost::filesystem::exists(directory)))
+        if(!(std::filesystem::exists(directory)))
         {
-            if(!boost::filesystem::create_directories(directory))
+            if(!std::filesystem::create_directories(directory))
                 MIOPEN_LOG_W("Unable to create a directory: " << directory);
             else
-                boost::filesystem::permissions(directory, boost::filesystem::all_all);
+                std::filesystem::permissions(directory, std::filesystem::perms::all);
         }
     }
 }
@@ -252,7 +252,7 @@ bool PlainTextDb::FlushUnsafe(const DbRecord& record, const RecordPositions* pos
             record.WriteContents(file);
         }
 
-        boost::filesystem::permissions(filename, boost::filesystem::all_all);
+        std::filesystem::permissions(filename, std::filesystem::perms::all);
     }
     else
     {
@@ -287,7 +287,7 @@ bool PlainTextDb::FlushUnsafe(const DbRecord& record, const RecordPositions* pos
         std::remove(filename.c_str());
         std::rename(temp_name.c_str(), filename.c_str());
         /// \todo What if rename fails? Thou shalt not loose the original file.
-        boost::filesystem::permissions(filename, boost::filesystem::all_all);
+        std::filesystem::permissions(filename, std::filesystem::perms::all);
     }
     return true;
 }

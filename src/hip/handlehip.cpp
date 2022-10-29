@@ -44,7 +44,7 @@
 #include <miopen/write_file.hpp>
 #endif
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <miopen/load_file.hpp>
 
 #ifndef _WIN32
@@ -423,11 +423,11 @@ Program Handle::LoadProgram(const std::string& program_name,
                            params,
                            is_kernel_str);
 #else
-        auto path = miopen::GetCachePath(false) / boost::filesystem::unique_path();
+        auto path = miopen::GetCachePath(false) / std::tmpnam(nullptr);
         if(p.IsCodeObjectInMemory())
             miopen::WriteFile(p.GetCodeObjectBlob(), path);
         else
-            boost::filesystem::copy_file(p.GetCodeObjectPathname(), path);
+            std::filesystem::copy_file(p.GetCodeObjectPathname(), path);
         miopen::SaveBinary(path, this->GetTargetProperties(), program_name, params, is_kernel_str);
 #endif
         p.FreeCodeObjectFileStorage();

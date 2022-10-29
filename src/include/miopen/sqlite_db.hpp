@@ -48,13 +48,6 @@
 #include <string>
 #include <chrono>
 #include <unordered_map>
-
-namespace boost {
-namespace filesystem {
-class path;
-} // namespace filesystem
-} // namespace boost
-
 namespace miopen {
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_DISABLE_SQL_WAL)
 
@@ -229,7 +222,7 @@ public:
 
         if(!is_system && !filename.empty())
         {
-            auto file            = boost::filesystem::path(filename_);
+            auto file            = std::filesystem::path(filename_);
             const auto directory = file.remove_filename();
             if(directory.string().empty())
             {
@@ -237,18 +230,18 @@ public:
                 return;
             }
 
-            if(!(boost::filesystem::exists(directory)))
+            if(!(std::filesystem::exists(directory)))
             {
-                if(!boost::filesystem::create_directories(directory))
+                if(!std::filesystem::create_directories(directory))
                     MIOPEN_LOG_W("Unable to create a directory: " << directory);
                 else
-                    boost::filesystem::permissions(directory, boost::filesystem::all_all);
+                    std::filesystem::permissions(directory, std::filesystem::perms::all);
             }
         }
         sql = SQLite{filename_, is_system};
         if(!sql.Valid())
         {
-            bool isKDB = boost::filesystem::path(filename).extension() == ".kdb";
+            bool isKDB = std::filesystem::path(filename).extension() == ".kdb";
             dbInvalid  = true;
             filename   = "";
             if(!is_system)

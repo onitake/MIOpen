@@ -418,7 +418,7 @@ int BNFin<Tgpu, Tref>::MIOpenFindCompile()
     for(const auto& sln : GetBNSolutions(ctx))
     {
         // remove the user db files
-        boost::filesystem::remove_all(miopen::GetCachePath(false));
+        std::filesystem::remove_all(miopen::GetCachePath(false));
         json res_item;
         res_item["solver_name"] = sln.solver_id;
         res_item["algorithm"]   = GetAlgorithm();

@@ -26,7 +26,7 @@
 
 #include <miopen/tmp_dir.hpp>
 #include <miopen/env.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <miopen/errors.hpp>
 #include <miopen/logger.hpp>
 
@@ -47,10 +47,10 @@ void SystemCmd(std::string cmd)
 }
 
 TmpDir::TmpDir(std::string prefix)
-    : path(boost::filesystem::temp_directory_path() /
-           boost::filesystem::unique_path("miopen-" + prefix + "-%%%%-%%%%-%%%%-%%%%"))
+    : path(std::filesystem::temp_directory_path() /
+           std::tmpnam(const_cast<char *>(("miopen-" + prefix + "-%%%%-%%%%-%%%%-%%%%").c_str())))
 {
-    boost::filesystem::create_directories(this->path);
+    std::filesystem::create_directories(this->path);
 }
 
 TmpDir& TmpDir::operator=(TmpDir&& other) noexcept
@@ -76,7 +76,7 @@ TmpDir::~TmpDir()
     if(!miopen::IsEnabled(MIOPEN_DEBUG_SAVE_TEMP_DIR{}))
     {
         if(!this->path.empty())
-            boost::filesystem::remove_all(this->path);
+            std::filesystem::remove_all(this->path);
     }
 }
 

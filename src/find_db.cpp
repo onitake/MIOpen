@@ -33,7 +33,7 @@
 #if MIOPEN_EMBED_DB
 #include <miopen_data.hpp>
 #endif
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -58,7 +58,7 @@ template <class TDb>
 std::string FindDbRecord_t<TDb>::GetInstalledPathEmbed(Handle& handle)
 {
     static const auto embed_path = [&] {
-        namespace fs          = boost::filesystem;
+        namespace fs          = std::filesystem;
         const std::string ext = ".fdb.txt";
         const auto root_path  = fs::path(GetSystemDbPath());
         const auto base_name  = handle.GetDbBasename();
@@ -125,13 +125,13 @@ template <class TDb>
 std::string FindDbRecord_t<TDb>::GetInstalledPathFile(Handle& handle)
 {
     static const auto installed_path = [&] {
-        namespace fs          = boost::filesystem;
+        namespace fs          = std::filesystem;
         const std::string ext = ".fdb.txt";
         const auto root_path  = fs::path(GetSystemDbPath());
         const auto base_name  = handle.GetDbBasename();
         const auto suffix     = GetSystemFindDbSuffix();
         const auto file_path  = root_path / (base_name + "." + suffix + ext);
-        if(boost::filesystem::exists(file_path))
+        if(std::filesystem::exists(file_path))
         {
             MIOPEN_LOG_I2("Found exact find database file: " + file_path.string());
             return file_path.string();

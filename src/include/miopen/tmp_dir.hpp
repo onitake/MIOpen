@@ -2,7 +2,7 @@
 #define MIOPEN_GUARD_MLOPEN_TMP_DIR_HPP
 
 #include <string>
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace miopen {
 
@@ -10,7 +10,7 @@ void SystemCmd(std::string cmd);
 
 struct TmpDir
 {
-    boost::filesystem::path path;
+    std::filesystem::path path;
     TmpDir(std::string prefix);
 
     TmpDir(TmpDir const&) = delete;

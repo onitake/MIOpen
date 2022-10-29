@@ -36,8 +36,8 @@
 #include <miopen_data.hpp>
 #endif
 #include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
+#include <filesystem>
 #include <optional>
 
 #include <memory>
@@ -73,7 +73,7 @@ class SQLite::impl
     };
     using sqlite3_ptr = std::unique_ptr<sqlite3, SQLiteCloser>;
 #if MIOPEN_EMBED_DB
-    int CreateInMemDb(const boost::filesystem::path& filepath, bool is_system)
+    int CreateInMemDb(const std::filesystem::path& filepath, bool is_system)
     {
         sqlite3* ptr_tmp = nullptr;
         int rc           = 0;
@@ -138,13 +138,13 @@ class SQLite::impl
         return rc;
     }
 #endif
-    int CreateFileDb(const boost::filesystem::path& filepath, bool is_system)
+    int CreateFileDb(const std::filesystem::path& filepath, bool is_system)
     {
         sqlite3* ptr_tmp = nullptr;
         int rc           = 0;
         if(is_system)
         {
-            if(boost::filesystem::file_size(filepath) <
+            if(std::filesystem::file_size(filepath) <
                512) // size of a very small database, Empty MIOpen DBs are 20 kb
             {
                 rc = -1;
@@ -170,7 +170,7 @@ class SQLite::impl
 public:
     impl(const std::string& filename_, bool is_system)
     {
-        boost::filesystem::path filepath(filename_);
+        std::filesystem::path filepath(filename_);
         int rc = 0;
 #if MIOPEN_EMBED_DB
         rc = CreateInMemDb(filepath, is_system);

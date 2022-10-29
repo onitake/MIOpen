@@ -34,8 +34,8 @@
 #include <miopen/lock_file.hpp>
 #include <miopen/temp_file.hpp>
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
+#include <filesystem>
 #include <optional>
 #include <boost/thread.hpp>
 
@@ -52,10 +52,10 @@
 #if MIOPEN_ENABLE_SQLITE
 namespace miopen {
 namespace tests {
-static boost::filesystem::path& exe_path()
+static std::filesystem::path& exe_path()
 {
     // NOLINTNEXTLINE (cppcoreguidelines-avoid-non-const-global-variables)
-    static boost::filesystem::path exe_path;
+    static std::filesystem::path exe_path;
     return exe_path;
 }
 static std::optional<std::string>& thread_logs_root()

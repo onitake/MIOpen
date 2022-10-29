@@ -30,7 +30,7 @@
 #include <miopen/expanduser.hpp>
 #include <miopen/logger.hpp>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include <cstdlib>
 #ifdef __linux__
@@ -42,15 +42,15 @@ MIOPEN_DECLARE_ENV_VAR(MIOPEN_USER_DB_PATH)
 
 namespace miopen {
 
-boost::filesystem::path GetLibPath()
+std::filesystem::path GetLibPath()
 {
-    boost::filesystem::path path = {""};
+    std::filesystem::path path = {""};
 #ifdef __linux__
     Dl_info info;
 
     if(dladdr(reinterpret_cast<void*>(miopenCreate), &info) != 0)
     {
-        path = boost::filesystem::canonical(boost::filesystem::path{info.dli_fname});
+        path = std::filesystem::canonical(std::filesystem::path{info.dli_fname});
         MIOPEN_LOG_I2(std::string("Lib Path: ") + path.string());
         if(path.empty())
             return path;

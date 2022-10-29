@@ -43,7 +43,7 @@
 #include <miopen/gemm_geometry.hpp>
 #endif
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include <string>
 
@@ -423,7 +423,7 @@ Program Handle::LoadProgram(const std::string& program_name,
                            params,
                            is_kernel_str);
 #else
-        auto path = miopen::GetCachePath(false) / boost::filesystem::unique_path();
+        auto path = miopen::GetCachePath(false) / std::tmpnam(nullptr);
         miopen::SaveProgramBinary(p, path.string());
         miopen::SaveBinary(
             path.string(), this->GetTargetProperties(), program_name, params, is_kernel_str);

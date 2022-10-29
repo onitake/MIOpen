@@ -33,14 +33,14 @@
 #include <string>
 #include <fstream>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include <miopen/errors.hpp>
 #include <miopen/tmp_dir.hpp>
 
 #include "test.hpp"
 
-namespace bf = boost::filesystem;
+namespace bf = std::filesystem;
 
 static int Child(const std::string& path, std::string cmd)
 {
