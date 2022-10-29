@@ -97,7 +97,7 @@ public:
                              : GetInstalledPath(handle)),
           db(debug::testing_find_db_enabled && !IsEnabled(MIOPEN_DEBUG_DISABLE_FIND_DB{})
                  ? std::make_optional<DbTimer<TDb>>(DbTimer<TDb>{installed_path, path})
-                 : std::nullopt)
+                 : std::optional<DbTimer<TDb>>{})
     {
         if(!db.has_value())
             return;
@@ -115,7 +115,7 @@ public:
 #else
           db(debug::testing_find_db_enabled && !IsEnabled(MIOPEN_DEBUG_DISABLE_FIND_DB{})
                    ? std::make_optional<DbTimer<TDb>>(DbTimer<TDb>{path, false})
-                   : std::nullopt)
+                   : std::optional<DbTimer<TDb>>{})
 #endif
     {
         if(!db.has_value())
