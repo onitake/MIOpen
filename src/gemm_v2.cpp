@@ -53,7 +53,6 @@
 #include <miopen/miopengemm.hpp>
 #endif
 
-#include <boost/range/adaptors.hpp>
 #include <tuple> // std::ignore
 
 #if MIOPEN_USE_ROCBLAS
@@ -1400,8 +1399,8 @@ GemmDescriptor CreateGemmDescriptorConvFwd(const TensorDescriptor& wDesc,
     int in_c  = xDesc.GetLengths()[1];
     int wei_k = wDesc.GetLengths()[0];
 
-    auto wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, wDesc.GetLengths().size());
-    auto out_spatial = boost::adaptors::slice(yDesc.GetLengths(), 2, yDesc.GetLengths().size());
+    auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, wDesc.GetLengths().size());
+    auto out_spatial = miopen::slice(yDesc.GetLengths(), 2, yDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = false;
@@ -1451,8 +1450,8 @@ GemmDescriptor CreateGemmDescriptorConvBwdData(const TensorDescriptor& wDesc,
     int in_c  = dxDesc.GetLengths()[1];
     int wei_k = wDesc.GetLengths()[0];
 
-    auto wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, wDesc.GetLengths().size());
-    auto out_spatial = boost::adaptors::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
+    auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, wDesc.GetLengths().size());
+    auto out_spatial = miopen::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = true;
@@ -1502,8 +1501,8 @@ GemmDescriptor CreateGemmDescriptorConvBwdWeight(const TensorDescriptor& dyDesc,
     std::size_t in_c  = xDesc.GetLengths()[1];
     std::size_t wei_k = dwDesc.GetLengths()[0];
 
-    auto wei_spatial = boost::adaptors::slice(dwDesc.GetLengths(), 2, dwDesc.GetLengths().size());
-    auto out_spatial = boost::adaptors::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
+    auto wei_spatial = miopen::slice(dwDesc.GetLengths(), 2, dwDesc.GetLengths().size());
+    auto out_spatial = miopen::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = false;
@@ -1556,7 +1555,7 @@ GemmDescriptor CreateGemmDescriptorConvCNHWFwd(const TensorDescriptor& wDesc,
     int in_c  = xDesc.GetLengths()[1];
     int wei_k = wDesc.GetLengths()[0];
 
-    auto out_spatial = boost::adaptors::slice(yDesc.GetLengths(), 2, yDesc.GetLengths().size());
+    auto out_spatial = miopen::slice(yDesc.GetLengths(), 2, yDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = false;
@@ -1607,7 +1606,7 @@ GemmDescriptor CreateGemmDescriptorConvCNHWBwdData(const TensorDescriptor& wDesc
     int in_c  = dxDesc.GetLengths()[1];
     int wei_k = wDesc.GetLengths()[0];
 
-    auto out_spatial = boost::adaptors::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
+    auto out_spatial = miopen::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = true;
@@ -1662,7 +1661,7 @@ GemmDescriptor CreateGemmStridedBatchedDescriptorConv1x1Fwd(const TensorDescript
     int in_c  = xDesc.GetLengths()[1];
     int wei_k = wDesc.GetLengths()[0];
 
-    auto in_spatial = boost::adaptors::slice(xDesc.GetLengths(), 2, xDesc.GetLengths().size());
+    auto in_spatial = miopen::slice(xDesc.GetLengths(), 2, xDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = false;
@@ -1714,7 +1713,7 @@ GemmDescriptor CreateGemmStridedBatchedDescriptorConv1x1BwdData(const TensorDesc
     int in_c  = dxDesc.GetLengths()[1];
     int wei_k = wDesc.GetLengths()[0];
 
-    auto in_spatial = boost::adaptors::slice(dxDesc.GetLengths(), 2, dxDesc.GetLengths().size());
+    auto in_spatial = miopen::slice(dxDesc.GetLengths(), 2, dxDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = true;
@@ -1766,7 +1765,7 @@ GemmDescriptor CreateGemmStridedBatchedDescriptorConv1x1BwdWeight(const TensorDe
     int in_c  = xDesc.GetLengths()[1];
     int wei_k = dwDesc.GetLengths()[0];
 
-    auto in_spatial = boost::adaptors::slice(xDesc.GetLengths(), 2, xDesc.GetLengths().size());
+    auto in_spatial = miopen::slice(xDesc.GetLengths(), 2, xDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = false;
@@ -1816,8 +1815,8 @@ GemmDescriptor CreateGemmDescriptorGroupConvFwd(const TensorDescriptor& wDesc,
     int in_c  = xDesc.GetLengths()[1];
     int wei_k = wDesc.GetLengths()[0];
 
-    auto wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, wDesc.GetLengths().size());
-    auto out_spatial = boost::adaptors::slice(yDesc.GetLengths(), 2, yDesc.GetLengths().size());
+    auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, wDesc.GetLengths().size());
+    auto out_spatial = miopen::slice(yDesc.GetLengths(), 2, yDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = false;
@@ -1868,8 +1867,8 @@ GemmDescriptor CreateGemmDescriptorGroupConvBwdData(const TensorDescriptor& wDes
     int in_c  = dxDesc.GetLengths()[1];
     int wei_k = wDesc.GetLengths()[0];
 
-    auto wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, wDesc.GetLengths().size());
-    auto out_spatial = boost::adaptors::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
+    auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, wDesc.GetLengths().size());
+    auto out_spatial = miopen::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = true;
@@ -1920,8 +1919,8 @@ GemmDescriptor CreateGemmDescriptorGroupConvBwdWeight(const TensorDescriptor& dy
     int in_c  = xDesc.GetLengths()[1];
     int wei_k = dwDesc.GetLengths()[0];
 
-    auto wei_spatial = boost::adaptors::slice(dwDesc.GetLengths(), 2, dwDesc.GetLengths().size());
-    auto out_spatial = boost::adaptors::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
+    auto wei_spatial = miopen::slice(dwDesc.GetLengths(), 2, dwDesc.GetLengths().size());
+    auto out_spatial = miopen::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = false;
@@ -1973,7 +1972,7 @@ GemmDescriptor CreateGemmDescriptorGroupConvCNHWFwd(const TensorDescriptor& wDes
     int in_c  = xDesc.GetLengths()[1];
     int wei_k = wDesc.GetLengths()[0];
 
-    auto out_spatial = boost::adaptors::slice(yDesc.GetLengths(), 2, yDesc.GetLengths().size());
+    auto out_spatial = miopen::slice(yDesc.GetLengths(), 2, yDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = false;
@@ -2025,7 +2024,7 @@ GemmDescriptor CreateGemmDescriptorGroupConvCNHWBwdData(const TensorDescriptor& 
     int in_c  = dxDesc.GetLengths()[1];
     int wei_k = wDesc.GetLengths()[0];
 
-    auto out_spatial = boost::adaptors::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
+    auto out_spatial = miopen::slice(dyDesc.GetLengths(), 2, dyDesc.GetLengths().size());
 
     bool isColMajor = false;
     bool transA     = true;

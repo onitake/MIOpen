@@ -34,7 +34,9 @@
 #include <algorithm>
 #include <cassert>
 #include <numeric>
+
 #include <boost/range/combine.hpp>
+#include <boost/range/adaptor/filtered.hpp>
 
 #define MIO_TENSOROCL_DEBUG 0
 

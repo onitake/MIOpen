@@ -52,8 +52,6 @@
 #include <cassert>
 #include <type_traits>
 
-#include <boost/range/adaptors.hpp>
-
 namespace miopen {
 
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_CONV_GEMM)

@@ -63,7 +63,6 @@
 #include <sstream>
 #include <vector>
 #include <type_traits>
-#include <boost/range/adaptors.hpp>
 
 #include <optional>
 #include <../test/verify.hpp>
@@ -71,8 +70,6 @@
 #include <../test/tensor_holder.hpp>
 #include <../test/cpu_conv.hpp>
 #include <../test/cpu_bias.hpp>
-
-#include <optional>
 
 // Declare hidden function for MIGraphX to smoke test it.
 extern "C" miopenStatus_t miopenHiddenSetConvolutionFindMode(miopenConvolutionDescriptor_t convDesc,
@@ -825,7 +822,7 @@ std::vector<int> ConvDriver<Tgpu, Tref>::GetInputTensorLengthsFromCmdLine()
     in_lens[0] = inflags.GetValueInt("batchsize");
     in_lens[1] = inflags.GetValueInt("in_channels");
 
-    auto in_spatial_lens = boost::adaptors::slice(in_lens, 2, 2 + spatial_dim);
+    auto in_spatial_lens = miopen::slice(in_lens, 2, 2 + spatial_dim);
 
     if(spatial_dim == 2)
     {
@@ -854,7 +851,7 @@ std::vector<int> ConvDriver<Tgpu, Tref>::GetWeightTensorLengthsFromCmdLine()
     int spatial_dim = inflags.GetValueInt("spatial_dim");
     wei_lens.resize(2 + spatial_dim);
 
-    auto wei_spatial_lens = boost::adaptors::slice(wei_lens, 2, 2 + spatial_dim);
+    auto wei_spatial_lens = miopen::slice(wei_lens, 2, 2 + spatial_dim);
 
     int group_count = std::max(inflags.GetValueInt("group_count"), 1);
 

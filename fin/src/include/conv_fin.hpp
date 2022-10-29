@@ -55,7 +55,6 @@
 #include <miopen/nogpu/handle_impl.hpp>
 #endif
 
-#include <boost/range/adaptor/sliced.hpp>
 #include <boost/filesystem.hpp>
 
 #include <algorithm>
@@ -1723,7 +1722,7 @@ std::vector<int> ConvFin<Tgpu, Tref>::GetInputTensorLengths()
     in_lens[0] = command["batchsize"];
     in_lens[1] = command["in_channels"];
 
-    auto in_spatial_lens = boost::adaptors::slice(in_lens, 2, 2 + spatial_dim);
+    auto in_spatial_lens = miopen::slice(in_lens, 2, 2 + spatial_dim);
 
     if(spatial_dim == 2)
     {
@@ -1757,7 +1756,7 @@ std::vector<int> ConvFin<Tgpu, Tref>::GetWeightTensorLengths()
     int spatial_dim = command["spatial_dim"];
     wei_lens.resize(2 + spatial_dim);
 
-    auto wei_spatial_lens = boost::adaptors::slice(wei_lens, 2, 2 + spatial_dim);
+    auto wei_spatial_lens = miopen::slice(wei_lens, 2, 2 + spatial_dim);
 
     int group_count = std::max(int(command["group_count"]), 1);
 

@@ -48,7 +48,7 @@
 #include <ostream>
 
 #include <boost/range/combine.hpp>
-#include <boost/range/adaptors.hpp>
+#include <boost/range/adaptor/transformed.hpp>
 
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_CONV_DIRECT)
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_CONV_IMPLICIT_GEMM)
@@ -158,17 +158,17 @@ ConvolutionDescriptor::GetForwardOutputTensorWithLayout(const TensorDescriptor& 
     std::size_t in_n, in_c;
     std::tie(in_n, in_c) = miopen::tie_pick<0, 1>{}(xDesc.GetLengths());
 
-    auto in_spatial = boost::adaptors::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
+    auto in_spatial = miopen::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
 
     std::size_t wei_k, wei_c;
     std::tie(wei_k, wei_c) = miopen::tie_pick<0, 1>{}(wDesc.GetLengths());
 
-    auto wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+    auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
 
     if(wDesc.GetLayout_str() == "CHWNc")
     {
         std::tie(wei_k, wei_c) = miopen::tie_pick<3, 0>{}(wDesc.GetLengths());
-        wei_spatial            = boost::adaptors::slice(wDesc.GetLengths(), 1, 1 + spatial_dim);
+        wei_spatial            = miopen::slice(wDesc.GetLengths(), 1, 1 + spatial_dim);
     }
 
     if(mode == miopenConvolution)
@@ -201,7 +201,7 @@ ConvolutionDescriptor::GetForwardOutputTensorWithLayout(const TensorDescriptor& 
     std::size_t out_c;
     std::vector<std::size_t> out_lens(spatial_dim + 2);
 
-    auto out_spatial = boost::adaptors::slice(out_lens, 2, 2 + spatial_dim);
+    auto out_spatial = miopen::slice(out_lens, 2, 2 + spatial_dim);
 
     if(paddingMode == miopenPaddingSame && mode == miopenConvolution &&
        miopen::all_of(GetConvDilations(), [](auto v) { return v == 1; }))

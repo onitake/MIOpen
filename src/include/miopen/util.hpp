@@ -29,8 +29,6 @@
 #include <miopen/common.hpp>
 #include <miopen/miopen.h>
 
-#include <boost/range/adaptors.hpp>
-
 namespace miopen {
 
 struct Handle;
@@ -41,9 +39,9 @@ float Im2ColGPU(
     ConstData_t im,
     std::size_t im_offset,
     std::size_t in_c,
-    const decltype(boost::adaptors::slice(std::vector<std::size_t>(), 0, 1))& in_spatial,
-    const decltype(boost::adaptors::slice(std::vector<std::size_t>(), 0, 1))& wei_spatial,
-    const decltype(boost::adaptors::slice(std::vector<std::size_t>(), 0, 1))& out_spatial,
+    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& in_spatial,
+    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& wei_spatial,
+    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& out_spatial,
     const std::vector<int>& pad_spatial,
     const std::vector<int>& stride_spatial,
     const std::vector<int>& dilation_spatial,
@@ -54,13 +52,13 @@ float Col2ImGPU(
     const Handle& handle,
     std::size_t spatial_dim,
     ConstData_t col,
-    const decltype(boost::adaptors::slice(std::vector<std::size_t>(), 0, 1))& out_spatial,
-    const decltype(boost::adaptors::slice(std::vector<std::size_t>(), 0, 1))& wei_spatial,
+    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& out_spatial,
+    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& wei_spatial,
     const std::vector<int>& pad_spatial,
     const std::vector<int>& stride_spatial,
     const std::vector<int>& dilation_spatial,
     std::size_t in_c,
-    const decltype(boost::adaptors::slice(std::vector<std::size_t>(), 0, 1))& in_spatial,
+    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& in_spatial,
     Data_t im,
     std::size_t im_offset,
     miopenDataType_t type);

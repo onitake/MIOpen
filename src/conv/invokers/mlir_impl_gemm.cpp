@@ -35,7 +35,6 @@
 #include <Miir.h>
 
 #include <any>
-#include <boost/range/adaptors.hpp>
 
 #if MIIR_VERSION_FLAT >= 6
 #define MIIR_BARE_POINTER_ABI 1

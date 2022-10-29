@@ -39,7 +39,6 @@
 #include <miopen/conv/data_invoke_params.hpp>
 
 #include <any>
-#include <boost/range/adaptors.hpp>
 
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_CONV_PRECISE_ROCBLAS_TIMING)
 
@@ -136,7 +135,7 @@ float GemmFwdBase::GetWti(const ExecutionContext&, const conv::ProblemDescriptio
     std::size_t in_n, in_c;
     std::tie(in_n, in_c)    = tie_pick<0, 1>()(xDesc.GetLengths());
     std::size_t spatial_dim = conv.GetSpatialDimension();
-    auto wei_spatial        = boost::adaptors::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+    auto wei_spatial        = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
 
     // Use transpose path 1x1, stride=2
     if(conv.GetSpatialDimension() == 2 &&
@@ -215,7 +214,7 @@ size_t GemmFwd1x1_0_2::GetWorkspaceSize(const ExecutionContext& context,
     std::tie(in_n, in_c) = miopen::tie_pick<0, 1>{}(xDesc.GetLengths());
 
     const auto out_spatial =
-        boost::adaptors::slice(yDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
+        miopen::slice(yDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
 
     const auto x_t_size = in_n * in_c * (xDesc.GetType() == miopenInt8 ? 2 : 1) *
                           std::accumulate(out_spatial.begin(),
@@ -251,7 +250,7 @@ bool GemmFwd1x1_0_2::IsApplicable(const ExecutionContext& context,
     decltype(auto) wDesc = problem.GetWeights();
 
     const auto spatial_dim = conv.GetSpatialDimension();
-    const auto wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
 
     return conv.GetSpatialDimension() == 2 &&
            miopen::all_of(wei_spatial, [](auto v) { return v == 1; }) &&
@@ -285,8 +284,8 @@ ConvSolution GemmFwd1x1_0_2::GetSolution(const ExecutionContext& context,
     const auto workspace_req = GetWorkspaceSize(context, problem);
 
     const std::size_t spatial_dim = conv.GetSpatialDimension();
-    const auto& in_spatial_       = boost::adaptors::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
-    const auto& out_spatial_      = boost::adaptors::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto& in_spatial_       = miopen::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto& out_spatial_      = miopen::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
 
     std::size_t in_n, in_c;
     std::tie(in_n, in_c) = tie_pick<0, 1>()(xDesc.GetLengths());
@@ -487,8 +486,8 @@ size_t GemmFwd1x1_0_1_int8::GetWorkspaceSize(const ExecutionContext& context,
     decltype(auto) yDesc  = problem.GetOut();
 
     const auto spatial_dim = conv.GetSpatialDimension();
-    const auto wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
-    const auto out_spatial = boost::adaptors::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto out_spatial = miopen::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
     const auto wei_c       = wDesc.GetLengths()[1];
 
     const auto ws_size = wei_c *
@@ -526,7 +525,7 @@ bool GemmFwd1x1_0_1_int8::IsApplicable(const ExecutionContext& context,
     decltype(auto) wDesc = problem.GetWeights();
 
     const auto spatial_dim = conv.GetSpatialDimension();
-    const auto wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
 
     return miopen::all_of(wei_spatial, [](auto v) { return v == 1; }) &&
            miopen::all_of(conv.GetConvPads(), [](auto v) { return v == 0; }) &&
@@ -556,8 +555,8 @@ ConvSolution GemmFwd1x1_0_1_int8::GetSolution(const ExecutionContext& context,
     const std::size_t spatial_dim = conv.GetSpatialDimension();
 
     // This ones do not store data directly, so they should be copied to vectors for invokers.
-    const auto& in_spatial_  = boost::adaptors::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
-    const auto& out_spatial_ = boost::adaptors::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto& in_spatial_  = miopen::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto& out_spatial_ = miopen::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
 
     const auto workspace_req = GetWorkspaceSize(context, problem);
 
@@ -693,7 +692,7 @@ bool GemmFwd1x1_0_1::IsApplicable(const ExecutionContext& context,
     decltype(auto) wDesc = problem.GetWeights();
 
     const auto spatial_dim = conv.GetSpatialDimension();
-    const auto wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
 
     return miopen::all_of(wei_spatial, [](auto v) { return v == 1; }) &&
            miopen::all_of(conv.GetConvPads(), [](auto v) { return v == 0; }) &&
@@ -722,8 +721,8 @@ ConvSolution GemmFwd1x1_0_1::GetSolution(const ExecutionContext& context,
     const std::size_t spatial_dim = conv.GetSpatialDimension();
 
     // This ones do not store data directly, so they should be copied to vectors for invokers.
-    const auto& in_spatial_  = boost::adaptors::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
-    const auto& out_spatial_ = boost::adaptors::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto& in_spatial_  = miopen::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto& out_spatial_ = miopen::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
 
     auto solution = ConvSolution{miopenStatusSuccess};
 
@@ -933,8 +932,8 @@ size_t GemmFwdRest::GetWorkspaceSize(const ExecutionContext& context,
     decltype(auto) yDesc  = problem.GetOut();
 
     const auto spatial_dim = conv.GetSpatialDimension();
-    const auto wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
-    const auto out_spatial = boost::adaptors::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+    const auto out_spatial = miopen::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
     const auto wei_c       = wDesc.GetLengths()[1];
 
     const auto workspace_size = wei_c *
@@ -977,8 +976,8 @@ bool GemmFwdRest::IsApplicable(const ExecutionContext& context,
         decltype(auto) wDesc = problem.GetWeights();
 
         const auto spatial_dim  = conv.GetSpatialDimension();
-        const auto& in_spatial  = boost::adaptors::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
-        const auto& wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+        const auto& in_spatial  = miopen::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
+        const auto& wei_spatial = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
 
         const auto in_c = xDesc.GetLengths()[1];
 
@@ -998,8 +997,8 @@ bool GemmFwdRest::IsApplicable(const ExecutionContext& context,
         decltype(auto) wDesc = problem.GetWeights();
 
         const std::size_t spatial_dim = conv.GetSpatialDimension();
-        const auto in_spatial  = boost::adaptors::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
-        const auto wei_spatial = boost::adaptors::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+        const auto in_spatial  = miopen::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
+        const auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
 
         if(miopen::any_of(in_spatial, [](auto v) { return v >= 161; }) &&
            miopen::any_of(wei_spatial, [](auto v) { return v >= 7; }))
@@ -1052,11 +1051,11 @@ ConvSolution GemmFwdRest::GetSolution(const ExecutionContext& context,
             return tmp;
         }();
 
-        decltype(auto) in_spatial_ = boost::adaptors::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
+        decltype(auto) in_spatial_ = miopen::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
         decltype(auto) out_spatial_ =
-            boost::adaptors::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
+            miopen::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
         decltype(auto) wei_spatial_ =
-            boost::adaptors::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+            miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
 
         const auto in_spatial  = std::vector<std::size_t>(in_spatial_.begin(), in_spatial_.end());
         const auto out_spatial = std::vector<std::size_t>(out_spatial_.begin(), out_spatial_.end());

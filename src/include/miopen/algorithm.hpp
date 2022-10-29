@@ -27,6 +27,7 @@
 #define GUARD_MLOPEN_ALGORITHM_HPP
 
 #include <algorithm>
+// #include <span> // wait till C++20
 
 namespace miopen {
 
@@ -40,6 +41,20 @@ template <typename Range, typename Predicate>
 bool all_of(const Range& r, Predicate p)
 {
     return std::all_of(r.begin(), r.end(), p);
+}
+
+// wait till C++20
+// template <typename T>
+// constexpr auto slice(T&& v, int first, int last)
+// {
+//     return std::span(begin(std::forward<T>(v))+first, end(std::forward<T>(v))+last);
+// }
+
+template <typename T>
+std::vector<T> slice(std::vector<T> const& v, int first, int last)
+{
+    std::vector<T> vector(v.begin() + first, v.begin() + last);
+    return vector;
 }
 
 } // namespace miopen
