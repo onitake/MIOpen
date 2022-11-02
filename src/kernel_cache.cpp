@@ -92,7 +92,7 @@ bool KernelCache::HasKernels(const std::string& algorithm, const std::string& ne
 bool KernelCache::HasProgram(const std::string& name, const std::string& params) const
 {
     const auto key = std::make_pair(name, params);
-    return program_map.count(key) > 0;
+    return static_cast<int>(program_map.contains(key)) > 0;
 }
 
 void KernelCache::ClearProgram(const std::string& name, const std::string& params)

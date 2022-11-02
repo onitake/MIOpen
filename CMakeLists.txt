@@ -100,8 +100,8 @@ endif()
 
 
 ############################################################
-# require C++14 prefer C++17
-add_compile_options(-std=c++17)
+# require C++14 prefer C++20
+add_compile_options(-std=c++20)
 
 ############################################################
 # OPTION - MIOpen Backend

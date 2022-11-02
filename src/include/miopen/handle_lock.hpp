@@ -58,9 +58,7 @@ inline std::filesystem::path get_handle_lock_path(const char* name)
     auto p = std::filesystem::current_path() / name;
     if(!std::filesystem::exists(p))
     {
-        auto tmp = std::filesystem::current_path() / std::tmpnam(nullptr);
-        std::ofstream{tmp};
-        std::filesystem::rename(tmp, p);
+        std::ofstream{p};
     }
     return p;
 }

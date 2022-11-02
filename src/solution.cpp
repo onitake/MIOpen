@@ -79,6 +79,7 @@ void Solution::RunImpl(Handle& handle,
     const auto problem_ =
         conv_desc.mode == miopenTranspose ? Transpose(GetProblem(), &x, w, &y) : GetProblem();
 
+    // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
     if(y.descriptor->GetLengths()[1] != w.descriptor->GetLengths()[0])
     {
         MIOPEN_THROW(miopenStatusBadParm);
@@ -86,16 +87,19 @@ void Solution::RunImpl(Handle& handle,
 
     if(miopen::CheckNumericsEnabled())
     {
+        // NOLINTBEGIN (bugprone-unchecked-optional-access)
         if(problem_.GetDirection() != miopenProblemDirectionBackward)
             miopen::checkNumericsInput(handle, *x.descriptor, x.buffer);
         if(problem_.GetDirection() != miopenProblemDirectionBackwardWeights)
             miopen::checkNumericsInput(handle, *w.descriptor, w.buffer);
         if(problem_.GetDirection() != miopenProblemDirectionForward)
             miopen::checkNumericsInput(handle, *y.descriptor, y.buffer);
+        // NOLINTEND (bugprone-unchecked-optional-access)
     }
 
     const auto conv_problem = problem_.AsConvolution();
 
+    // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
     Problem::ValidateGroupCount(*x.descriptor, *w.descriptor, conv_problem.GetConv());
 
     const auto invoke_ctx = [&]() -> AnyInvokeParams {
@@ -166,8 +170,10 @@ void Solution::RunImpl(Handle& handle,
 
     decltype(auto) db        = GetDb(conv_ctx);
     const auto conv_solution = GetSolver().GetSolver().FindSolution(conv_ctx, db, invoke_ctx);
+    // NOLINTBEGIN (bugprone-unchecked-optional-access)
     decltype(auto) invoker =
         handle.PrepareInvoker(*conv_solution.invoker_factory, conv_solution.construction_params);
+    // NOLINTEND (bugprone-unchecked-optional-access)
     handle.RegisterInvoker(invoker, net_cfg, GetSolver().ToString());
     invoker(handle, invoke_ctx);
     checkNumericsOutput_();

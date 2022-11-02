@@ -37,10 +37,10 @@
 namespace miopen {
 
 std::filesystem::path HipBuild(std::optional<miopen::TmpDir>& tmp_dir,
-                                 const std::string& filename,
-                                 std::string src,
-                                 std::string params,
-                                 const TargetProperties& target);
+                               const std::string& filename,
+                               std::string src,
+                               std::string params,
+                               const TargetProperties& target);
 
 void bin_file_to_str(const std::filesystem::path& file, std::string& buf);
 

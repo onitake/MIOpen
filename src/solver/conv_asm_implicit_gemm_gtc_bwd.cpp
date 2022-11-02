@@ -1008,6 +1008,7 @@ bool ConvAsmImplicitGemmGTCDynamicBwdXdlops::IsApplicable(const ExecutionContext
     }
 
     const auto target = ctx.GetStream().GetTargetProperties();
+    // NOLINTNEXTLINE (bugprone-unchecked-optional-access
     if(target.Xnack() && *target.Xnack())
         return false;
 

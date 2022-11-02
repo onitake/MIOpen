@@ -35,7 +35,6 @@
 #include <miopen/temp_file.hpp>
 
 #include <filesystem>
-#include <filesystem>
 #include <optional>
 
 #include <array>
@@ -703,10 +702,12 @@ private:
 
         if(thread_logs_root())
         {
+            // NOLINTBEGIN (bugprone-unchecked-optional-access)
             const auto out_path =
                 *thread_logs_root() + "/thread-" + std::to_string(id) + "_" + log_postfix + ".log";
             const auto err_path = *thread_logs_root() + "/thread-" + std::to_string(id) + "_" +
                                   log_postfix + "-err.log";
+            // NOLINTEND (bugprone-unchecked-optional-access)
 
             std::remove(out_path.c_str());
             std::remove(err_path.c_str());
@@ -982,9 +983,11 @@ public:
                                ArgsHelper::path_arg + " " + temp_file.Path() + " --" +
                                ArgsHelper::db_class_arg + " " + ArgsHelper::db_class::Get<TDb>();
 
+                // NOLINTBEGIN (bugprone-unchecked-optional-access)
                 if(thread_logs_root())
                     command +=
                         std::string(" --") + ArgsHelper::logs_path_arg + " " + *thread_logs_root();
+                // NOLINTEND (bugprone-unchecked-optional-access)
 
                 if(full_set())
                     command += " --all";
@@ -1067,8 +1070,8 @@ public:
                                ArgsHelper::db_class::Get<TDb>();
 
                 if(thread_logs_root())
-                    command +=
-                        std::string(" --") + ArgsHelper::logs_path_arg + " " + *thread_logs_root();
+                    command += std::string(" --") + ArgsHelper::logs_path_arg + " " +
+                               *thread_logs_root(); // NOLINT (bugprone-unchecked-optional-access)
 
                 if(full_set())
                     command += " --all";

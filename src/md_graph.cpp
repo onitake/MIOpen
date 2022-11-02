@@ -84,8 +84,10 @@ MDGraph_vertex_ptr FusionMDGraph::GetCurVertex(const Handle& handle)
         bool arch_sup =
             cur.first->supported_arch.empty() || (it != cur.first->supported_arch.end());
 
+        // NOLINTBEGIN (bugprone-unchecked-optional-access)
         auto xnack_sup = !(cur.first->supported_xnack && target.Xnack() &&
                            *cur.first->supported_xnack != *target.Xnack());
+        // NOLINTEND (bugprone-unchecked-optional-access)
         if((std::any_cast<int>(cur.second["weight"]) > weight) && arch_sup && xnack_sup)
         {
             weight = std::any_cast<int>(cur.second["weight"]);
@@ -1110,6 +1112,7 @@ bool FusionMDGraph::Advance(std::shared_ptr<FusionOpDescriptor> op,
                     if(CmpOpKey(edg_map, attr_fun, syms))
                     {
                         MIOPEN_LOG_I2("Key Match Successfull");
+                        // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
                         if(syms.count("weight") != 0)
                         {
                             weight += syms.at("weight");
@@ -1123,6 +1126,7 @@ bool FusionMDGraph::Advance(std::shared_ptr<FusionOpDescriptor> op,
                         // Update the algo set
                         if(op->kind() == miopenFusionOpConvForward)
                         {
+                            // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
                             if(syms.count("algo") != 0)
                             {
                                 auto algo = static_cast<miopenConvFwdAlgorithm_t>(syms.at("algo"));

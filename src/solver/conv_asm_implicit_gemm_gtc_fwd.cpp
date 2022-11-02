@@ -1538,6 +1538,7 @@ bool ConvAsmImplicitGemmGTCDynamicFwdXdlops::IsApplicable(const ExecutionContext
 #endif
 
     const auto target = ctx.GetStream().GetTargetProperties();
+    // NOLINTNEXTLINE (modernize-loop-convert)
     if(target.Xnack() && *target.Xnack())
         return false;
 

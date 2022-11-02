@@ -232,7 +232,8 @@ BnBwdTrainingSpatialSingle::GetSolution(const ExecutionContext& context,
              && (handle.GetDeviceName() != "gfx90a")
 #endif
                  )) &&
-           (!handle.GetTargetProperties().Xnack() || !*handle.GetTargetProperties().Xnack()))
+           (!handle.GetTargetProperties().Xnack() ||
+            !*handle.GetTargetProperties().Xnack())) // NOLINT (bugprone-unchecked-optional-access)
         {
             kernel.kernel_file = "gcnAsmBNBwdTrainSpatial.s";
             kernel.kernel_name = "miopenGcnAsmBNBwdTrainSpatial";

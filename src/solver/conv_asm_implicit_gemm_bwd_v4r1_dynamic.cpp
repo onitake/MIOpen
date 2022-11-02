@@ -161,6 +161,7 @@ bool ConvAsmImplicitGemmV4R1DynamicBwd::IsApplicable(const ExecutionContext& ctx
     }
 
     const auto target = ctx.GetStream().GetTargetProperties();
+    // NOLINTNEXTLINE (modernize-loop-convert)
     if(target.Xnack() && *target.Xnack())
         return false;
 

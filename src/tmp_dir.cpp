@@ -46,12 +46,14 @@ void SystemCmd(std::string cmd)
 #endif
 }
 
+// NOLINTBEGIN (cppcoreguidelines-pro-type-const-cast,concurrency-mt-unsafe)
 TmpDir::TmpDir(std::string prefix)
     : path(std::filesystem::temp_directory_path() /
-           std::tmpnam(const_cast<char *>(("miopen-" + prefix + "-%%%%-%%%%-%%%%-%%%%").c_str())))
+           std::tmpnam(const_cast<char*>(("miopen-" + prefix + "-%%%%-%%%%-%%%%-%%%%").c_str())))
 {
     std::filesystem::create_directories(this->path);
 }
+// NOLINTEND (cppcoreguidelines-pro-type-const-cast,concurrency-mt-unsafe)
 
 TmpDir& TmpDir::operator=(TmpDir&& other) noexcept
 {

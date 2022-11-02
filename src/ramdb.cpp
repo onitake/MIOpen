@@ -32,7 +32,6 @@
 #include <miopen/md5.hpp>
 
 #include <filesystem>
-#include <filesystem>
 
 #include <chrono>
 #include <ctime>

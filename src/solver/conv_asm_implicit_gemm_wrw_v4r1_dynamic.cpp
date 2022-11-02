@@ -332,6 +332,7 @@ bool ConvAsmImplicitGemmV4R1DynamicWrw::IsApplicable(const ExecutionContext& ctx
     }
 
     const auto target = ctx.GetStream().GetTargetProperties();
+    // NOLINTNEXTLINE (modernize-loop-convert)
     if(target.Xnack() && *target.Xnack())
         return false;
     std::string kernel_name;

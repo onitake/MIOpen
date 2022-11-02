@@ -1020,8 +1020,10 @@ static Invoker PrepareInvoker(Handle& handle,
     const auto solver = solver_id.GetSolver();
     auto db           = GetDb(ctx);
     auto solution     = solver.FindSolution(ctx, db, {}); // auto tune is not expected here
+    // NOLINTBEGIN (bugprone-unchecked-optional-access)
     const auto invoker =
         handle.PrepareInvoker(*solution.invoker_factory, solution.construction_params);
+    // NOLINTEND (bugprone-unchecked-optional-access)
 
     handle.RegisterInvoker(
         invoker, config, solver_id.ToString(), AlgorithmName(solver_id.GetAlgo(dir)));

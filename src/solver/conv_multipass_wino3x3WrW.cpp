@@ -440,6 +440,7 @@ bool ConvWinograd3x3MultipassWrW<WinoDataH, WinoFilterH, WinoDataW, WinoFilterW>
     }
 
     const auto target = params.GetStream().GetTargetProperties();
+    // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
     if(target.Xnack() && *target.Xnack())
         return false;
 

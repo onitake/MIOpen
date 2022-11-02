@@ -245,12 +245,18 @@ public:
     {
         assert(solver || algo);
         assert(!(solver && algo));
+
+        if(!(solver && algo))
+        {
+            MIOPEN_THROW("looking for Solver ID and algo (does not exist):");
+        }
         if(solver)
         {
             MIOPEN_LOG_I2("Returning an invoker for problem " << config.ToString() << " and solver "
                                                               << solver->ToString());
             return invokers[std::make_pair(config.ToString(), solver->ToString())];
         }
+
         MIOPEN_LOG_I2("Returning an invoker for problem " << config.ToString() << " and algorithm "
                                                           << algo->ToString());
         return invokers.GetFound1_0(config, *algo);

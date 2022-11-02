@@ -103,6 +103,7 @@ void check_kern_db()
         CHECK(clean_db.StoreRecordUnsafe(cfg0));
         auto readout = clean_db.FindRecordUnsafe(cfg0);
         CHECK(readout);
+        // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
         CHECK(readout.value() == cfg0.kernel_blob);
         CHECK(clean_db.RemoveRecordUnsafe(cfg0));
         CHECK(!clean_db.FindRecordUnsafe(cfg0));

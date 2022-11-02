@@ -1116,9 +1116,11 @@ miopenStatus_t FusionPlanDescriptor::Compile(Handle& handle)
                 continue;
 
             const auto target = handle.GetTargetProperties();
+            // NOLINTBEGIN (bugprone-unchecked-optional-access)
             if(kinder.first->supported_xnack && target.Xnack() &&
                *kinder.first->supported_xnack != *target.Xnack())
                 continue;
+            // NOLINTEND (bugprone-unchecked-optional-access)
 
             std::transform(d.begin(), d.end(), d.begin(), ::tolower);
             find_replace_first(program_name, "GFX*", d);
@@ -1241,7 +1243,7 @@ std::vector<Exec_arg_t> FusionPlanDescriptor::CalcArgOrder(const Handle& handle)
             for(std::size_t idx = 0; idx < op_map.size(); idx++)
             {
                 auto key_pair = std::make_pair(idx, sz);
-                if(size_map.count(key_pair) > 0)
+                if(size_map.contains(key_pair))
                 {
                     auto keys = size_map.at(key_pair);
                     std::sort(keys.begin(), keys.end());
@@ -1260,7 +1262,7 @@ std::vector<Exec_arg_t> FusionPlanDescriptor::CalcArgOrder(const Handle& handle)
         for(std::size_t idx = 0; idx < op_map.size(); idx++)
         {
             auto op = op_map.at(idx);
-            if(ptr_map.count(idx) > 0)
+            if(ptr_map.contains(idx))
             {
                 auto keys = ptr_map.at(idx);
                 std::sort(keys.begin(), keys.end());

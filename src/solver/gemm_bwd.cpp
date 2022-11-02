@@ -178,8 +178,7 @@ size_t GemmBwd1x1_stride2::GetWorkspaceSize(const ExecutionContext& context,
     const auto in_n = dxDesc.GetLengths()[0];
     const auto in_c = dxDesc.GetLengths()[1];
 
-    const auto out_spatial =
-        miopen::slice(dyDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
+    const auto out_spatial = miopen::slice(dyDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
 
     const auto dx_t_size = in_n * in_c *
                            std::accumulate(out_spatial.begin(),
@@ -483,9 +482,8 @@ ConvSolution GemmBwd1x1_stride1::GetSolution(const ExecutionContext&,
             const auto in_c  = dxDesc.GetLengths()[1];
             const auto wei_k = wDesc.GetLengths()[0];
 
-            const auto in_spatial = miopen::slice(dxDesc.GetLengths(), 2, 2 + spatial_dim);
-            const auto out_spatial =
-                miopen::slice(dyDesc.GetLengths(), 2, 2 + spatial_dim);
+            const auto in_spatial  = miopen::slice(dxDesc.GetLengths(), 2, 2 + spatial_dim);
+            const auto out_spatial = miopen::slice(dyDesc.GetLengths(), 2, 2 + spatial_dim);
 
             std::size_t out_spatial_size = std::accumulate(out_spatial.begin(),
                                                            out_spatial.end(),

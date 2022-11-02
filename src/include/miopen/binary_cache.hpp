@@ -37,18 +37,18 @@ namespace miopen {
 bool IsCacheDisabled();
 
 std::filesystem::path GetCacheFile(const std::string& device,
-                                     const std::string& name,
-                                     const std::string& args,
-                                     bool is_kernel_str);
+                                   const std::string& name,
+                                   const std::string& args,
+                                   bool is_kernel_str);
 
 std::filesystem::path GetCachePath(bool is_system);
 
 #if !MIOPEN_ENABLE_SQLITE_KERN_CACHE
 std::filesystem::path LoadBinary(const TargetProperties& target,
-                                   std::size_t num_cu,
-                                   const std::string& name,
-                                   const std::string& args,
-                                   bool is_kernel_str = false);
+                                 std::size_t num_cu,
+                                 const std::string& name,
+                                 const std::string& args,
+                                 bool is_kernel_str = false);
 void SaveBinary(const std::filesystem::path& binary_path,
                 const TargetProperties& target,
                 const std::string& name,

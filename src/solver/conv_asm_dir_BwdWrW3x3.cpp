@@ -354,6 +354,7 @@ bool ConvAsmBwdWrW3x3::IsApplicable(const ConvolutionContext& ctx,
         return false;
 
     const auto target = ctx.GetStream().GetTargetProperties();
+    // NOLINTNEXTLINE (modernize-loop-convert)
     if(target.Xnack() && *target.Xnack())
         return false;
 

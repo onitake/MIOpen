@@ -192,6 +192,7 @@ inline bool IsApplicableTransform(const ConvolutionContext& params)
         return false;
 
     const auto target = params.GetStream().GetTargetProperties();
+    // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
     if(target.Xnack() && *target.Xnack())
         return false;
 
@@ -890,10 +891,11 @@ ConvMPBidirectWinograd_xdlops<WinoDataH, WinoFilterH, WinoDataW, WinoFilterW>::G
     result.construction_params.push_back(wino_transform.construction_params[2]);
     result.construction_params.push_back(xdlops_conv.construction_params[0]);
 
+    // NOLINTBEGIN (bugprone-unchecked-optional-access)
     result.invoker_factory =
         MakeWinogradInvokerFactory<WinoDataH, WinoFilterH, WinoDataW, WinoFilterW>(
             ctx, xdlops_conv.invoker_factory.value(), true);
-
+    // NOLINTEND (bugprone-unchecked-optional-access)
     return result;
 }
 

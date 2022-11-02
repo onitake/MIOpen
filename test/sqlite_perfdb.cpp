@@ -35,9 +35,8 @@
 #include <miopen/temp_file.hpp>
 
 #include <filesystem>
-#include <filesystem>
 #include <optional>
-#include <boost/thread.hpp>
+#include <shared_mutex>
 
 #include <array>
 #include <cstdio>
@@ -576,10 +575,12 @@ private:
 
         if(thread_logs_root())
         {
+            // NOLINTBEGIN (bugprone-unchecked-optional-access)
             const auto out_path =
                 *thread_logs_root() + "/thread-" + std::to_string(id) + "_" + log_postfix + ".log";
             const auto err_path = *thread_logs_root() + "/thread-" + std::to_string(id) + "_" +
                                   log_postfix + "-err.log";
+            // NOLINTEND (bugprone-unchecked-optional-access)
 
             std::remove(out_path.c_str());
             std::remove(err_path.c_str());
@@ -820,7 +821,7 @@ public:
         std::cout << "Launching test processes..." << std::endl;
         {
             auto& file_lock = LockFile::Get(lock_file_path.c_str());
-            boost::shared_lock<LockFile> lock(file_lock);
+            std::shared_lock<LockFile> lock(file_lock);
 
             auto id = 0;
 
@@ -831,7 +832,7 @@ public:
 
                 if(thread_logs_root())
                     command += std::string(" --") + DbMultiThreadedTest::logs_path_arg + " " +
-                               *thread_logs_root();
+                               *thread_logs_root(); // NOLINT (bugprone-unchecked-optional-access)
 
                 if(full_set())
                     command += " --all";
@@ -896,7 +897,7 @@ public:
         std::cout << "Launching test processes..." << std::endl;
         {
             auto& file_lock = LockFile::Get(lock_file_path.c_str());
-            boost::shared_lock<LockFile> lock(file_lock);
+            std::shared_lock<LockFile> lock(file_lock);
 
             auto id = 0;
 
@@ -908,7 +909,7 @@ public:
 
                 if(thread_logs_root())
                     command += std::string(" --") + DbMultiThreadedTest::logs_path_arg + " " +
-                               *thread_logs_root();
+                               *thread_logs_root(); // NOLINT (bugprone-unchecked-optional-access)
 
                 if(full_set())
                     command += " --all";

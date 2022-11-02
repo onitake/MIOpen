@@ -485,7 +485,7 @@ int ConvFin<Tgpu, Tref>::MIOpenPerfEval()
     {
         // Somehow the direction changes mid loop !
         json res_item;
-        boost::system::error_code ec;
+        std::error_code ec;
         std::filesystem::remove_all(miopen::GetCachePath(false), ec);
         // std::filesystem::remove_all(miopen::GetCachePath(true), ec);
         if(ec)
@@ -783,7 +783,7 @@ int ConvFin<Tgpu, Tref>::MIOpenFindEval()
     {
         // Somehow the direction changes mid loop !
         json res_item;
-        boost::system::error_code ec;
+        std::error_code ec;
         std::filesystem::remove_all(miopen::GetCachePath(false), ec);
         // std::filesystem::remove_all(miopen::GetCachePath(true), ec);
         if(ec)

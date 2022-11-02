@@ -92,9 +92,8 @@ float GemmWrwBase::GetWti(const ExecutionContext&, const conv::ProblemDescriptio
     int n_Im2ColGPU                      = 0;
 
     std::size_t in_n, in_c;
-    std::tie(in_n, in_c) = tie_pick<0, 1>()(xDesc.GetLengths());
-    const auto wei_spatial =
-        miopen::slice(dwDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
+    std::tie(in_n, in_c)   = tie_pick<0, 1>()(xDesc.GetLengths());
+    const auto wei_spatial = miopen::slice(dwDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
 
     // if not 1x1
     if((miopen::any_of(wei_spatial, [](auto v) { return v != 1; }) ||
@@ -142,8 +141,7 @@ bool GemmWrw1x1_stride1::IsApplicable(const ExecutionContext& context,
     const auto& dwDesc = problem.GetWeights();
     const auto& conv   = problem.GetConv();
 
-    const auto wei_spatial =
-        miopen::slice(dwDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
+    const auto wei_spatial = miopen::slice(dwDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
 
     return miopen::all_of(wei_spatial, [](auto v) { return v == 1; }) &&
            miopen::all_of(conv.GetConvStrides(), [](auto v) { return v == 1; }) &&
@@ -183,10 +181,8 @@ ConvSolution GemmWrw1x1_stride1::GetSolution(const ExecutionContext&,
         return tmp;
     }();
 
-    const auto in_spatial =
-        miopen::slice(xDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
-    const auto out_spatial =
-        miopen::slice(dyDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
+    const auto in_spatial  = miopen::slice(xDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
+    const auto out_spatial = miopen::slice(dyDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
 
     const auto out_spatial_size = std::accumulate(
         out_spatial.begin(), out_spatial.end(), std::size_t(1), std::multiplies<std::size_t>());
@@ -397,12 +393,9 @@ ConvSolution GemmWrwUniversal::GetSolution(const ExecutionContext& context,
     const auto in_c           = xDesc.GetLengths()[1];
     const auto wei_k          = dwDesc.GetLengths()[0];
 
-    const auto in_spatial_ =
-        miopen::slice(xDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
-    const auto wei_spatial_ =
-        miopen::slice(dwDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
-    const auto out_spatial_ =
-        miopen::slice(dyDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
+    const auto in_spatial_  = miopen::slice(xDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
+    const auto wei_spatial_ = miopen::slice(dwDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
+    const auto out_spatial_ = miopen::slice(dyDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
 
     const auto in_spatial  = std::vector<std::size_t>(in_spatial_.begin(), in_spatial_.end());
     const auto wei_spatial = std::vector<std::size_t>(wei_spatial_.begin(), wei_spatial_.end());

@@ -43,11 +43,11 @@ MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_HIP_DUMP)
 namespace miopen {
 
 static std::filesystem::path HipBuildImpl(std::optional<TmpDir>& tmp_dir,
-                                            const std::string& filename,
-                                            std::string src,
-                                            std::string params,
-                                            const TargetProperties& target,
-                                            const bool testing_mode)
+                                          const std::string& filename,
+                                          std::string src,
+                                          std::string params,
+                                          const TargetProperties& target,
+                                          const bool testing_mode)
 {
 #ifdef __linux__
     // Write out the include files
@@ -55,7 +55,7 @@ static std::filesystem::path HipBuildImpl(std::optional<TmpDir>& tmp_dir,
     if(!testing_mode)
     {
         auto inc_list = GetHipKernelIncList();
-        auto inc_path = tmp_dir->path;
+        auto inc_path = tmp_dir->path; // NOLINT (bugprone-unchecked-optional-access)
         std::filesystem::create_directories(inc_path);
         for(const auto& inc_file : inc_list)
         {
@@ -65,7 +65,7 @@ static std::filesystem::path HipBuildImpl(std::optional<TmpDir>& tmp_dir,
     }
 
     src += "\nint main() {}\n";
-    WriteFile(src, tmp_dir->path / filename);
+    WriteFile(src, tmp_dir->path / filename); // NOLINT (bugprone-unchecked-optional-access)
 
     // cppcheck-suppress unreadVariable
     const LcOptionTargetStrings lots(target);
@@ -107,10 +107,12 @@ static std::filesystem::path HipBuildImpl(std::optional<TmpDir>& tmp_dir,
         std::string(" -DHIP_PACKAGE_VERSION_FLAT=") + std::to_string(HIP_PACKAGE_VERSION_FLAT);
 
     params += " ";
-    auto bin_file = tmp_dir->path / (filename + ".o");
+    auto bin_file =
+        tmp_dir->path / (filename + ".o"); // NOLINT (bugprone-unchecked-optional-access)
 
     // compile
     const std::string redirector = testing_mode ? " 1>/dev/null 2>&1" : "";
+    // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
     tmp_dir->Execute(env + std::string(" ") + MIOPEN_HIP_COMPILER,
                      params + filename + " -o " + bin_file.string() + redirector);
     if(!std::filesystem::exists(bin_file))
@@ -191,10 +193,10 @@ static bool DetectIfBufferAtomicFaddReturnsFloat(const TargetProperties& target)
 #endif
 
 std::filesystem::path HipBuild(std::optional<TmpDir>& tmp_dir,
-                                 const std::string& filename,
-                                 std::string src,
-                                 std::string params,
-                                 const TargetProperties& target)
+                               const std::string& filename,
+                               std::string src,
+                               std::string params,
+                               const TargetProperties& target)
 {
 #ifndef ROCM_FEATURE_LLVM_AMDGCN_BUFFER_ATOMIC_FADD_F32_RETURNS_FLOAT
     if(miopen::solver::support_amd_buffer_atomic_fadd(target.Name()))

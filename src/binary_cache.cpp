@@ -114,11 +114,10 @@ bool IsCacheDisabled()
 using KDb = DbTimer<MultiFileDb<KernDb, KernDb, false>>;
 KDb GetDb(const TargetProperties& target, size_t num_cu)
 {
-    static const auto user_dir = ComputeUserCachePath();
-    static const auto sys_dir  = ComputeSysCachePath();
-    std::filesystem::path user_path =
-        user_dir / (Handle::GetDbBasename(target, num_cu) + ".ukdb");
-    std::filesystem::path sys_path = sys_dir / (Handle::GetDbBasename(target, num_cu) + ".kdb");
+    static const auto user_dir      = ComputeUserCachePath();
+    static const auto sys_dir       = ComputeSysCachePath();
+    std::filesystem::path user_path = user_dir / (Handle::GetDbBasename(target, num_cu) + ".ukdb");
+    std::filesystem::path sys_path  = sys_dir / (Handle::GetDbBasename(target, num_cu) + ".kdb");
     if(user_dir.empty())
         user_path = user_dir;
 #if !MIOPEN_EMBED_DB
@@ -130,9 +129,9 @@ KDb GetDb(const TargetProperties& target, size_t num_cu)
 #endif
 
 std::filesystem::path GetCacheFile(const std::string& device,
-                                     const std::string& name,
-                                     const std::string& args,
-                                     bool is_kernel_str)
+                                   const std::string& name,
+                                   const std::string& args,
+                                   bool is_kernel_str)
 {
     std::string filename = (is_kernel_str ? miopen::md5(name) : name) + ".o";
     return GetCachePath(false) / miopen::md5(device + ":" + args) / filename;
@@ -200,10 +199,10 @@ void SaveBinary(const std::string& hsaco,
 }
 #else
 std::filesystem::path LoadBinary(const TargetProperties& target,
-                                   const size_t num_cu,
-                                   const std::string& name,
-                                   const std::string& args,
-                                   bool is_kernel_str)
+                                 const size_t num_cu,
+                                 const std::string& name,
+                                 const std::string& args,
+                                 bool is_kernel_str)
 {
     if(miopen::IsCacheDisabled())
         return {};

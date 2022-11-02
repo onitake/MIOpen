@@ -995,6 +995,7 @@ void BuildAsm(const std::string& name,
         action.SetLogging(true);
         auto optAsm = miopen::SplitSpaceSeparated(options);
 #if ROCM_FEATURE_ASM_REQUIRES_NO_XNACK_OPTION
+        // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
         if(target.Xnack() && !*target.Xnack())
             optAsm.emplace_back("-mno-xnack");
 #endif
@@ -1303,7 +1304,7 @@ void BuildHip(const std::string& name,
         if(std::none_of(opts.begin(), opts.end(), [](const std::string& s) {
                return StartsWith(s, "--std=") || StartsWith(s, "-std=");
            }))
-            opts.push_back("-std=c++17");
+            opts.push_back("-std17");
 
         HiprtcProgram prog(name, text);
         prog.Compile(opts);

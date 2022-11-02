@@ -225,6 +225,7 @@ HeuristicGet(std::size_t data_size, uint32_t batch, uint32_t height, uint32_t wi
         }
     }
 
+    // NOLINTNEXTLINE (modernize-loop-convert)
     for(auto it = kernel_list.rbegin(); it != kernel_list.rend(); it++)
     {
         if(it->tile_x == 4 || it->tile_y == 4) // We don't want such kernel to be selected here,

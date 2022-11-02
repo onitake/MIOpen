@@ -52,6 +52,7 @@ bool ConvAsm7x7c3h224w224k64u2v2p3q3f1::IsApplicable(const ExecutionContext& ctx
         return false;
 
     const auto target = ctx.GetStream().GetTargetProperties();
+    // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
     if(target.Xnack() && *target.Xnack())
         return false;
 

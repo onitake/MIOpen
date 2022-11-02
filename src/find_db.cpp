@@ -245,6 +245,7 @@ bool FindDbRecord_t<TDb>::Validate(Handle& handle, const NetworkConfig& config) 
     auto unbuilt = false;
     auto any     = false;
 
+    // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
     for(const auto& pair : content->As<FindDbData>())
     {
         if(in_sync)
@@ -287,6 +288,7 @@ bool FindDbRecord_t<TDb>::Validate(Handle& handle, const NetworkConfig& config) 
 template <class TDb>
 void FindDbRecord_t<TDb>::CopyTo(std::vector<PerfField>& to) const
 {
+    // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
     const auto range = content->As<FindDbData>();
     std::transform(range.begin(), range.end(), std::back_inserter(to), [](const auto& pair) {
         return PerfField{
@@ -300,13 +302,16 @@ void FindDbRecord_t<TDb>::LogFindDbItem(const std::pair<std::string, FindDbData>
 {
     const auto log_level = log_as_error ? LoggingLevel::Error : LoggingLevel::Info2;
 
+    // NOLINTBEGIN (bugprone-unchecked-optional-access)
     MIOPEN_LOG(log_level,
                "Kernel cache entry not found for solver <"
                    << pair.first << "::" << pair.second.solver_id
                    << "> at network config: " << content->GetKey()
                    << " and kernel cache key: " << pair.second.kcache_key.algorithm_name << ", "
                    << pair.second.kcache_key.network_config);
+    // NOLINTEND (bugprone-unchecked-optional-access)
 
+    // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
     for(const auto& pair2 : content->As<FindDbData>())
         MIOPEN_LOG(log_level,
                    "Find-db record content: <"

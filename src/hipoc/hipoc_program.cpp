@@ -321,6 +321,7 @@ void HIPOCProgramImpl::BuildCodeObject(std::string params,
         return GetKernelSrc(program);
     }();
 
+    // NOLINTBEGIN (bugprone-branch-clone)
     if(miopen::EndsWith(filename, ".cpp"))
     {
 #if MIOPEN_BUILD_DEV
@@ -338,6 +339,7 @@ void HIPOCProgramImpl::BuildCodeObject(std::string params,
         params += " -Wno-everything";
 #endif
     }
+    // NOLINTEND (bugprone-branch-clone)
 
 #if MIOPEN_USE_COMGR /// \todo Refactor when functionality stabilize.
     BuildCodeObjectInMemory(params, src, filename);

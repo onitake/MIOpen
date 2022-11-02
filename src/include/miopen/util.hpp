@@ -33,35 +33,33 @@ namespace miopen {
 
 struct Handle;
 
-float Im2ColGPU(
-    const Handle& handle,
-    std::size_t spatial_dim,
-    ConstData_t im,
-    std::size_t im_offset,
-    std::size_t in_c,
-    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& in_spatial,
-    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& wei_spatial,
-    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& out_spatial,
-    const std::vector<int>& pad_spatial,
-    const std::vector<int>& stride_spatial,
-    const std::vector<int>& dilation_spatial,
-    Data_t col,
-    miopenDataType_t type);
+float Im2ColGPU(const Handle& handle,
+                std::size_t spatial_dim,
+                ConstData_t im,
+                std::size_t im_offset,
+                std::size_t in_c,
+                const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& in_spatial,
+                const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& wei_spatial,
+                const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& out_spatial,
+                const std::vector<int>& pad_spatial,
+                const std::vector<int>& stride_spatial,
+                const std::vector<int>& dilation_spatial,
+                Data_t col,
+                miopenDataType_t type);
 
-float Col2ImGPU(
-    const Handle& handle,
-    std::size_t spatial_dim,
-    ConstData_t col,
-    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& out_spatial,
-    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& wei_spatial,
-    const std::vector<int>& pad_spatial,
-    const std::vector<int>& stride_spatial,
-    const std::vector<int>& dilation_spatial,
-    std::size_t in_c,
-    const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& in_spatial,
-    Data_t im,
-    std::size_t im_offset,
-    miopenDataType_t type);
+float Col2ImGPU(const Handle& handle,
+                std::size_t spatial_dim,
+                ConstData_t col,
+                const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& out_spatial,
+                const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& wei_spatial,
+                const std::vector<int>& pad_spatial,
+                const std::vector<int>& stride_spatial,
+                const std::vector<int>& dilation_spatial,
+                std::size_t in_c,
+                const decltype(miopen::slice(std::vector<std::size_t>(), 0, 1))& in_spatial,
+                Data_t im,
+                std::size_t im_offset,
+                miopenDataType_t type);
 
 float transpose_NCHW2CNHW(const Handle& handle,
                           int n,

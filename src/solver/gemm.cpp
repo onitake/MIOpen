@@ -213,8 +213,7 @@ size_t GemmFwd1x1_0_2::GetWorkspaceSize(const ExecutionContext& context,
     std::size_t in_n, in_c;
     std::tie(in_n, in_c) = miopen::tie_pick<0, 1>{}(xDesc.GetLengths());
 
-    const auto out_spatial =
-        miopen::slice(yDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
+    const auto out_spatial = miopen::slice(yDesc.GetLengths(), 2, 2 + conv.GetSpatialDimension());
 
     const auto x_t_size = in_n * in_c * (xDesc.GetType() == miopenInt8 ? 2 : 1) *
                           std::accumulate(out_spatial.begin(),
@@ -997,8 +996,8 @@ bool GemmFwdRest::IsApplicable(const ExecutionContext& context,
         decltype(auto) wDesc = problem.GetWeights();
 
         const std::size_t spatial_dim = conv.GetSpatialDimension();
-        const auto in_spatial  = miopen::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
-        const auto wei_spatial = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+        const auto in_spatial         = miopen::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
+        const auto wei_spatial        = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
 
         if(miopen::any_of(in_spatial, [](auto v) { return v >= 161; }) &&
            miopen::any_of(wei_spatial, [](auto v) { return v >= 7; }))
@@ -1051,11 +1050,9 @@ ConvSolution GemmFwdRest::GetSolution(const ExecutionContext& context,
             return tmp;
         }();
 
-        decltype(auto) in_spatial_ = miopen::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
-        decltype(auto) out_spatial_ =
-            miopen::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
-        decltype(auto) wei_spatial_ =
-            miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
+        decltype(auto) in_spatial_  = miopen::slice(xDesc.GetLengths(), 2, 2 + spatial_dim);
+        decltype(auto) out_spatial_ = miopen::slice(yDesc.GetLengths(), 2, 2 + spatial_dim);
+        decltype(auto) wei_spatial_ = miopen::slice(wDesc.GetLengths(), 2, 2 + spatial_dim);
 
         const auto in_spatial  = std::vector<std::size_t>(in_spatial_.begin(), in_spatial_.end());
         const auto out_spatial = std::vector<std::size_t>(out_spatial_.begin(), out_spatial_.end());

@@ -481,6 +481,7 @@ bool ConvAsmBwdWrW1x1::IsApplicable(const ConvolutionContext& ctx,
         return false;
 
     const auto target = ctx.GetStream().GetTargetProperties();
+    // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
     if(target.Xnack() && *target.Xnack())
         return false;
 

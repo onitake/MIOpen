@@ -350,8 +350,10 @@ std::vector<Solution> Problem::FindSolutionsImpl(Handle& handle,
         auto solution = Solution{};
         solution.SetTime(find1_solutions[i].time);
         solution.SetWorkspaceSize(find1_solutions[i].memory);
+        // NOLINTBEGIN (bugprone-unchecked-optional-access)
         solution.SetSolver(static_cast<miopen::solver::Id>(
             handle.GetFound1_0SolverId(netcfg, AlgorithmName{algo}).value()));
+        // NOLINTEND (bugprone-unchecked-optional-access)
         solution.SetProblem(*this);
 
         MIOPEN_LOG_I("Found solvution: " << solution.GetSolver().ToString() << " , "

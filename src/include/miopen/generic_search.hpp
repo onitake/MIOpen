@@ -395,6 +395,7 @@ auto GenericSearch(const Solver s, const Context& context_, const AnyInvokeParam
                                      << " != " << current_solution.workspace_sz);
                 }
 
+                // NOLINTNEXTLINE (bugprone-unchecked-optional-access)
                 invoker = profile_h.PrepareInvoker(*current_solution.invoker_factory,
                                                    current_solution.construction_params);
                 invoker(profile_h, invoke_ctx);

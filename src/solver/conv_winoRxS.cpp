@@ -482,6 +482,7 @@ static bool IsApplicableBase(const ConvolutionContext& ctx, const ProblemDescrip
         return false;
 
     const auto target = ctx.GetStream().GetTargetProperties();
+    // NOLINTNEXTLINE (modernize-loop-convert)
     if(target.Xnack() && *target.Xnack())
         return false;
 

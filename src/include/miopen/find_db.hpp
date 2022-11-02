@@ -88,6 +88,7 @@ public:
     FindDbRecord_t(const FindDbRecord_t&) = delete;
     FindDbRecord_t& operator=(const FindDbRecord_t&) = delete;
 
+    // NOLINTBEGIN (bugprone-unchecked-optional-access)
     template <class TProblemDescription, class TTestDb = TDb>
     FindDbRecord_t(Handle& handle, const TProblemDescription& problem, is_immediate_t<TTestDb> = 0)
         : path(debug::testing_find_db_path_override() ? *debug::testing_find_db_path_override()
@@ -124,6 +125,7 @@ public:
         content = db->FindRecord(problem);
         in_sync = content.has_value();
     }
+    // NOLINTEND (bugprone-unchecked-optional-access)
 
     ~FindDbRecord_t()
     {
@@ -133,10 +135,13 @@ public:
             MIOPEN_LOG_E("Failed to store record to find-db at <" << path << ">");
     }
 
+    // NOLINTBEGIN (bugprone-unchecked-optional-access)
     auto begin() const { return content->As<FindDbData>().begin(); }
     auto begin() { return content->As<FindDbData>().begin(); }
     auto end() const { return content->As<FindDbData>().end(); }
     auto end() { return content->As<FindDbData>().end(); }
+    // NOLINTEND (bugprone-unchecked-optional-access)
+
     bool empty() const { return !content.has_value(); }
 
     template <class TProblemDescription>
