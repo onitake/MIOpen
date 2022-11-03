@@ -31,7 +31,7 @@
 
 namespace miopen {
 
-#if __cplusplus < 201402L // For ex. hip is not C++14 yet.
+#if __cplusplus < 201402L // For ex. hip is not c++20 yet.
 template <typename T, typename... Args>
 std::unique_ptr<T> make_unique(Args&&... args)
 {

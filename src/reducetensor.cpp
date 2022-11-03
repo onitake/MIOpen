@@ -711,7 +711,7 @@ void ReduceTensorDescriptor::ReduceTensor(const Handle& handle,
 
         std::string param;
 
-        param = std::string(" -std=c++14 ");
+        param = std::string(" -std=c++20 ");
         param += " -DCK_PARAM_BLOCKSIZE=" + std::to_string(blockSize);
         param += " -DCK_PARAM_BLKGROUPSIZE=" + std::to_string(blkGroupSize);
         param +=

@@ -85,7 +85,7 @@ ADD rbuild.ini /rbuild.ini
 ADD requirements.txt /requirements.txt
 ADD dev-requirements.txt /dev-requirements.txt
 # Install dependencies
-# TODO: Add --std=c++14
+# TODO: Add --std=c++20
 ARG GPU_ARCH=";"
 ARG PREFIX=/usr/local
 ARG USE_FIN="OFF"

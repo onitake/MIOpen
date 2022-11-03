@@ -576,7 +576,7 @@ constexpr std::size_t get_lds_max_number_of_byte() { return 65536; }
 
 static inline auto get_static_ck_common_compiler_flag(const ConvolutionContext& ctx)
 {
-    auto compiler_flag = std::string(" --std=c++14");
+    auto compiler_flag = std::string(" --std=c++20");
 
     // atomic-fadd
     compiler_flag += std::string(" -DCK_USE_AMD_BUFFER_ATOMIC_FADD=") +
