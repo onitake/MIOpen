@@ -212,6 +212,26 @@ std::vector<Solution> FindConvolution(const ExecutionContext& ctx,
     return results;
 }
 
+template <class FieldType>
+static inline void FillFindReturnParameters(const std::vector<Solution>& results,
+                                            FieldType miopenConvAlgoPerf_t::*field,
+                                            const char* log_start,
+                                            int* const returned_algo_count,
+                                            miopenConvAlgoPerf_t* perf_results)
+{
+    *returned_algo_count = static_cast<int>(results.size());
+
+    for(int i = 0; i < *returned_algo_count; i++)
+    {
+        perf_results[i].*field = static_cast<FieldType>(results[i].GetSolver().GetAlgo());
+        perf_results[i].time   = results[i].GetTime();
+        perf_results[i].memory = results[i].GetWorkspaceSize();
+    }
+
+    MIOPEN_LOG_I(log_start << " Chosen Algorithm: " << results[0].GetSolver().ToString() << " , "
+                           << results[0].GetWorkspaceSize() << ", " << results[0].GetTime());
+}
+
 void ConvolutionDescriptor::FindConvFwdAlgorithm(Handle& handle,
                                                  const TensorDescriptor& xDesc,
                                                  ConstData_t x,
@@ -254,19 +274,7 @@ void ConvolutionDescriptor::FindConvFwdAlgorithm(Handle& handle,
     if(results.empty())
         MIOPEN_THROW("Forward Convolution cannot be executed due to incorrect params");
 
-    *returnedAlgoCount = static_cast<int>(results.size());
-
-    for(int i = 0; i < *returnedAlgoCount; i++)
-    {
-        perfResults[i].fwd_algo =
-            StringToConvolutionFwdAlgo(results[i].GetSolver().GetAlgo(conv::Direction::Forward));
-        perfResults[i].time   = results[i].GetTime();
-        perfResults[i].memory = results[i].GetWorkspaceSize();
-    }
-
-    MIOPEN_LOG_I("FW Chosen Algorithm: " << results[0].GetSolver().ToString() << " , "
-                                         << results[0].GetWorkspaceSize()
-                                         << ", " << results[0].GetTime());
+    FillFindReturnParameters(results, &miopenConvAlgoPerf_t::fwd_algo, "FW", returnedAlgoCount, perfResults);
 }
 
 void ValidateConvTensors(const ConvTensors& tensors)
@@ -751,19 +759,8 @@ void ConvolutionDescriptor::FindConvBwdDataAlgorithm(Handle& handle,
         MIOPEN_THROW(miopenStatusUnknownError,
                      "Backward Data Convolution cannot be executed due to incorrect params");
 
-    *returnedAlgoCount = static_cast<int>(results.size());
-
-    for(int i = 0; i < *returnedAlgoCount; i++)
-    {
-        perfResults[i].bwd_data_algo = StringToConvolutionBwdDataAlgo(
-            results[i].GetSolver().GetAlgo(conv::Direction::BackwardData));
-        perfResults[i].time   = results[i].GetTime();
-        perfResults[i].memory = results[i].GetWorkspaceSize();
-    }
-
-    MIOPEN_LOG_I("BWD Chosen Algorithm: " << results[0].GetSolver().ToString() << " , "
-                                         << results[0].GetWorkspaceSize() << ", "
-                                         << results[0].GetTime());
+    FillFindReturnParameters(
+        results, &miopenConvAlgoPerf_t::bwd_data_algo, "BWD", returnedAlgoCount, perfResults);
 }
 static void ConvBwdCheckNumerics(const Handle& handle,
                                  const ConvBwdTensors& tensors,
@@ -937,9 +934,9 @@ void ConvolutionDescriptor::FindConvBwdWeightsAlgorithm(Handle& handle,
 
     *returnedAlgoCount = 0;
 
-    auto problem =
+    const auto problem =
         conv::ProblemDescription{dyDesc, dwDesc, xDesc, *this, conv::Direction::BackwardWeights};
-    auto ctx =
+    const auto ctx =
         ExecutionContext{&handle}.DetectRocm().SetupFloats(problem).WithTuning(exhaustiveSearch);
 
     const auto invoke_ctx = conv::WrWInvokeParams{InvokeType::Evaluate,
@@ -953,19 +950,8 @@ void ConvolutionDescriptor::FindConvBwdWeightsAlgorithm(Handle& handle,
     if(results.empty())
         MIOPEN_THROW("Backward Weights Convolution cannot be executed due to incorrect params");
 
-    *returnedAlgoCount = requestAlgoCount, static_cast<int>(results.size());
-
-    for(int i = 0; i < *returnedAlgoCount; i++)
-    {
-        perfResults[i].bwd_weights_algo = StringToConvolutionBwdWeightsAlgo(
-            results[i].GetSolver().GetAlgo(conv::Direction::BackwardWeights));
-        perfResults[i].time   = results[i].GetTime();
-        perfResults[i].memory = results[i].GetWorkspaceSize();
-    }
-
-    MIOPEN_LOG_I("BWrW Chosen Algorithm: " << results[0].GetSolver().ToString() << " , "
-                                          << results[0].GetWorkspaceSize() << ", "
-                                          << results[0].GetTime());
+    FillFindReturnParameters(
+        results, &miopenConvAlgoPerf_t::bwd_data_algo, "BWrW", returnedAlgoCount, perfResults);
 }
 
 static void ConvWrwCheckNumerics(const Handle& handle,
