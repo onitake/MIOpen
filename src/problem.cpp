@@ -252,9 +252,9 @@ std::vector<Solution> Problem::FindSolutionsImpl(Handle& handle,
 
     ValidateGroupCount(x_desc, w_desc, conv_desc);
 
-    auto x       = buffers.at(miopenTensorConvolutionX).get();
-    const auto w = buffers.at(miopenTensorConvolutionW).get();
-    auto y       = buffers.at(miopenTensorConvolutionY).get();
+    auto x        = buffers.at(miopenTensorConvolutionX).get();
+    const auto& w = buffers.at(miopenTensorConvolutionW).get();
+    auto y        = buffers.at(miopenTensorConvolutionY).get();
 
     if(conv_desc.mode == miopenTranspose)
     {
@@ -262,7 +262,7 @@ std::vector<Solution> Problem::FindSolutionsImpl(Handle& handle,
         std::swap(x_desc, y_desc);
     }
 
-    const auto& actual_problem = miopenTranspose ? Transpose() : *this;
+    const auto& actual_problem = miopenTranspose ? MakeTransposed() : *this;
     const auto conv_problem = actual_problem.AsConvolution();
 
     const auto workspace_max = conv_desc.GetWorkSpaceSize({&handle}, conv_problem);
