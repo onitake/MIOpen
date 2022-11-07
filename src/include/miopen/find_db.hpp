@@ -35,6 +35,7 @@
 #include <miopen/perf_field.hpp>
 #include <miopen/ramdb.hpp>
 #include <miopen/readonlyramdb.hpp>
+#include <miopen/solution.hpp>
 
 #include <boost/optional.hpp>
 
@@ -140,29 +141,44 @@ public:
     bool empty() const { return !content.is_initialized(); }
 
     template <class TProblemDescription>
-    static std::vector<PerfField> TryLoad(Handle& handle,
-                                          const TProblemDescription& problem,
-                                          const std::function<void(DbRecord&)>& regenerator)
+    static std::vector<Solution> TryLoad(Handle& handle,
+                                         const TProblemDescription& problem,
+                                         const std::function<std::vector<Solution>()>& regenerator)
     {
-        auto ret = std::vector<PerfField>{};
         FindDbRecord_t<TDb> record{handle, problem};
 
         const auto network_config = problem.BuildConfKey();
 
         if(record.in_sync && !record.Validate(handle, network_config))
         {
-            record.CopyTo(ret);
-            return ret;
+            auto tmp = std::vector<PerfField>{};
+            record.CopyTo(tmp);
+
+            auto solutions = std::vector<Solution>{};
+            std::transform(tmp.begin(), tmp.end(), std::back_inserter(solutions), [](auto&& pf) {
+                return Solution{solver::Id{pf.solver_id}, pf.time, pf.workspace};
+            });
+
+            return solutions;
         }
 
         MIOPEN_LOG_I("Find-db regenerating.");
-        ret.clear();
         record.in_sync = false;
         record.content.emplace(problem);
-        regenerator(*record.content);
-        record.CopyTo(ret);
 
-        return ret;
+        const auto solutions = regenerator();
+
+        for(const auto& solution : solutions)
+        {
+            const auto algo = solution.GetSolver().GetAlgo(problem.GetDirection());
+            record.content->SetValues(algo,
+                                      FindDbData{solution.GetSolver().ToString(),
+                                                 solution.GetTime(),
+                                                 solution.GetWorkspaceSize(),
+                                                 FindDbKCacheKey::MakeUnused(algo)});
+        }
+
+        return solutions;
     }
 
 private:

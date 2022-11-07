@@ -243,12 +243,10 @@ std::vector<Solution> Problem::FindSolutionsImpl(Handle& handle,
         MIOPEN_THROW(miopenStatusInvalidValue,
                      "Convolution problem should have exactly three tensor descriptors.");
 
-    auto x_desc =
-        GetTensorDescriptorChecked(miopenTensorConvolutionX, "miopenTensorConvolutionX");
+    auto x_desc = GetTensorDescriptorChecked(miopenTensorConvolutionX, "miopenTensorConvolutionX");
     const auto& w_desc =
         GetTensorDescriptorChecked(miopenTensorConvolutionW, "miopenTensorConvolutionW");
-    auto y_desc =
-        GetTensorDescriptorChecked(miopenTensorConvolutionY, "miopenTensorConvolutionY");
+    auto y_desc = GetTensorDescriptorChecked(miopenTensorConvolutionY, "miopenTensorConvolutionY");
 
     ValidateGroupCount(x_desc, w_desc, conv_desc);
 
@@ -263,9 +261,9 @@ std::vector<Solution> Problem::FindSolutionsImpl(Handle& handle,
     }
 
     const auto& actual_problem = miopenTranspose ? MakeTransposed() : *this;
-    const auto conv_problem = actual_problem.AsConvolution();
+    const auto conv_problem    = actual_problem.AsConvolution();
 
-    const auto workspace_max = conv_desc.GetWorkSpaceSize({&handle}, conv_problem);
+    const auto workspace_max  = conv_desc.GetWorkSpaceSize({&handle}, conv_problem);
     const auto workspace_size = std::min(options.workspace_limit, workspace_max);
     auto workspace            = workspace_size != 0 ? handle.Create(workspace_size) : nullptr;
 

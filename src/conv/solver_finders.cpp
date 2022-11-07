@@ -29,7 +29,7 @@
 #include <miopen/conv_algo_name.hpp>
 #include <miopen/config.h>
 #include <miopen/mlo_internal.hpp>
-#include <miopen/perf_field.hpp>
+#include <miopen/solution.hpp>
 
 namespace miopen {
 
@@ -193,17 +193,15 @@ static inline void AppendPointersToElements(const std::vector<miopen::solver::Co
 }
 
 template <class InvokeParams>
-static void EvaluateInvokers(Handle& handle,
-                             const std::vector<solver::ConvSolution>& solutions,
-                             const AlgorithmName& algorithm_name,
-                             const NetworkConfig& network_config,
-                             const InvokeParams& invoke_ctx,
-                             DbRecord& record)
+static std::vector<Solution> EvaluateInvokers(Handle& handle,
+                                              const std::vector<solver::ConvSolution>& solutions,
+                                              const AlgorithmName& algorithm_name,
+                                              const NetworkConfig& network_config,
+                                              const InvokeParams& invoke_ctx)
 {
-
     const char* const arch = miopen::GetStringEnv(MIOPEN_DEVICE_ARCH{});
     if(arch != nullptr && strlen(arch) > 0)
-        return;
+        return {};
 
     auto selected     = miopen::solver::ConvSolution{miopenStatusUnknownError};
     auto best         = std::numeric_limits<float>::max();
@@ -252,24 +250,19 @@ static void EvaluateInvokers(Handle& handle,
         }
     }
 
-    if(selected.Succeeded())
-    {
-        handle.RegisterInvoker(best_invoker, network_config, selected.solver_id, algorithm_name);
-        MIOPEN_LOG_I("Selected: " << selected << ": " << best
-                                  << ", workspace_sz = " << selected.workspace_sz);
-        record.SetValues(algorithm_name,
-                         FindDbData{selected.solver_id,
-                                    best,
-                                    selected.workspace_sz,
-                                    FindDbKCacheKey::MakeUnused(algorithm_name)});
-    }
+    if(!selected.Succeeded())
+        return {};
+
+    handle.RegisterInvoker(best_invoker, network_config, selected.solver_id, algorithm_name);
+    MIOPEN_LOG_I("Selected: " << selected << ": " << best
+                              << ", workspace_sz = " << selected.workspace_sz);
+    return {{Solution{solver::Id{selected.solver_id}, best, selected.workspace_sz}}};
 }
 
-void ConvFindCore(const AnyInvokeParams& invoke_ctx,
-                  DbRecord& record,
-                  const ConvolutionContext& ctx,
-                  bool use_winograd_only,
-                  const std::vector<std::unique_ptr<SolversFinder>>& finders)
+std::vector<Solution> ConvFindCore(const AnyInvokeParams& invoke_ctx,
+                                   const ConvolutionContext& ctx,
+                                   bool use_winograd_only,
+                                   const std::vector<std::unique_ptr<SolversFinder>>& finders)
 {
     auto& handle = ctx.GetStream();
 
@@ -281,13 +274,24 @@ void ConvFindCore(const AnyInvokeParams& invoke_ctx,
                                   f->Find(ctx, invoke_ctx, use_winograd_only));
         });
 
+    std::size_t total = 0;
+
+    for(auto it = solutions.begin(); it != solutions.end();)
+    {
+        if(it->second.empty())
+        {
+            it = solutions.erase(it);
+            continue;
+        }
+
+        total += it->second.size();
+        ++it;
+    }
+
     // Precompile
     {
         auto all = std::vector<const miopen::solver::ConvSolution*>{};
-        all.reserve(
-            std::accumulate(solutions.begin(), solutions.end(), 0, [](auto&& before, auto&& ss) {
-                return before + ss.second.size();
-            }));
+        all.reserve(total);
         for(const auto& ss : solutions)
             AppendPointersToElements(ss.second, all);
         PrecompileSolutions(handle, all);
@@ -302,9 +306,19 @@ void ConvFindCore(const AnyInvokeParams& invoke_ctx,
     AutoEnableProfiling enableProfiling{handle};
     const auto network_config = ctx.problem.BuildConfKey();
 
+    auto ret = std::vector<Solution>{};
+    ret.reserve(total);
+
     for(const auto& ss : solutions)
-        if(!ss.second.empty())
-            EvaluateInvokers(handle, ss.second, ss.first, network_config, invoke_ctx, record);
+    {
+        auto evaluated = EvaluateInvokers(handle, ss.second, ss.first, network_config, invoke_ctx);
+
+        ret.insert(ret.end(),
+                   std::make_move_iterator(evaluated.begin()),
+                   std::make_move_iterator(evaluated.end()));
+    }
+
+    return ret;
 }
 
 bool IsAlgorithmDisabled(miopenConvAlgorithm_t algo)

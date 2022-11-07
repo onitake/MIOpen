@@ -182,21 +182,15 @@ std::vector<Solution> FindConvolution(const ExecutionContext& ctx,
     }
     else
     {
-        const auto fdb_results =
-            UserFindDbRecord::TryLoad(ctx.GetStream(), problem, [&](DbRecord& record) {
-                auto conv_ctx                       = ConvolutionContext{ctx, problem};
-                conv_ctx.use_dynamic_solutions_only = findMode.IsDynamicHybrid(ctx);
+        results = UserFindDbRecord::TryLoad(ctx.GetStream(), problem, [&]() {
+            auto conv_ctx                       = ConvolutionContext{ctx, problem};
+            conv_ctx.use_dynamic_solutions_only = findMode.IsDynamicHybrid(ctx);
 
-                ConvFindCore(invoke_ctx,
-                             record,
-                             conv_ctx,
-                             conv.IsWinograd3x3SupportedAndFast(conv_ctx),
-                             GetConvSolverFinders());
-            });
-
-        for (auto&& fdb_result : fdb_results)
-            results.emplace_back(
-                solver::Id{fdb_result.solver_id}, fdb_result.time, fdb_result.workspace);
+            return ConvFindCore(invoke_ctx,
+                                conv_ctx,
+                                conv.IsWinograd3x3SupportedAndFast(conv_ctx),
+                                GetConvSolverFinders());
+        });
     }
 
     std::sort(std::begin(results), std::end(results), [](auto&& l, auto&& r) {
@@ -274,7 +268,8 @@ void ConvolutionDescriptor::FindConvFwdAlgorithm(Handle& handle,
     if(results.empty())
         MIOPEN_THROW("Forward Convolution cannot be executed due to incorrect params");
 
-    FillFindReturnParameters(results, &miopenConvAlgoPerf_t::fwd_algo, "FW", returnedAlgoCount, perfResults);
+    FillFindReturnParameters(
+        results, &miopenConvAlgoPerf_t::fwd_algo, "FW", returnedAlgoCount, perfResults);
 }
 
 void ValidateConvTensors(const ConvTensors& tensors)
