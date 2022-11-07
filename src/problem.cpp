@@ -147,7 +147,7 @@ const TensorDescriptor& Problem::GetTensorDescriptorChecked(miopenTensorArgument
     return found->second;
 }
 
-Problem Problem::Transpose() const
+Problem Problem::MakeTransposed() const
 {
     auto transposed = Problem{};
     transposed.SetOperatorDescriptor(GetOperatorDescriptor());

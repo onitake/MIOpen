@@ -169,7 +169,7 @@ AnyInvokeParams Solution::MakeInvokeParams(const Problem& problem_,
 
 Problem Solution::Transpose(const Problem& problem, RunInput* x, const RunInput& w, RunInput* y)
 {
-    auto transposed = problem.Transpose();
+    auto transposed = problem.MakeTransposed();
 
     std::swap(*x, *y);
 

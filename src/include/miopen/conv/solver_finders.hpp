@@ -49,10 +49,14 @@ public:
                                                   bool use_winograd_only) const
     {
         if(!IsEnabled(ctx, use_winograd_only))
+        {
+            MIOPEN_LOG_I2("Skipping " << GetAlgorithmName(ctx).ToString());
             return {};
+        }
 
         try
         {
+            MIOPEN_LOG_I2("Starting find for " << GetAlgorithmName(ctx).ToString());
             return FindImpl(ctx, invoke_ctx, use_winograd_only);
         }
         catch(Exception& ex)

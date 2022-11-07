@@ -42,7 +42,7 @@ MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_CONV_WINOGRAD)
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_CONV_IMPLICIT_GEMM)
 MIOPEN_DECLARE_ENV_VAR(MIOPEN_DEBUG_CONV_FFT)
 
-class DataDirectSolverFinder : public SolversFinder
+class DirectSolverFinder : public SolversFinder
 {
 public:
     AlgorithmName GetAlgorithmName(const ConvolutionContext& ctx) const override
@@ -61,7 +61,9 @@ protected:
                                                const AnyInvokeParams& invoke_ctx,
                                                bool /*use_winograd_only*/) const override
     {
-        return FindAllDirectSolutions(ctx, invoke_ctx);
+        return ctx.problem.conv_problem.GetDirection() != conv::Direction::BackwardWeights
+                   ? FindAllDirectSolutions(ctx, invoke_ctx)
+                   : FindAllBwdWrW2DSolutions(ctx, invoke_ctx);
     }
 };
 
@@ -84,7 +86,9 @@ protected:
                                                const AnyInvokeParams& invoke_ctx,
                                                bool /*use_winograd_only*/) const override
     {
-        return FindAllImplicitGemmSolutions(ctx, invoke_ctx);
+        return ctx.problem.conv_problem.GetDirection() != conv::Direction::BackwardWeights
+                   ? FindAllImplicitGemmSolutions(ctx, invoke_ctx)
+                   : FindImplicitGemmWrWAllSolutions(ctx, invoke_ctx);
     }
 };
 
@@ -158,7 +162,9 @@ protected:
         auto ctx_copy = ctx;
         if(use_winograd_only)
             ctx_copy.use_dynamic_solutions_only = true;
-        return FindAllGemmSolutions(ctx_copy, invoke_ctx);
+        return ctx_copy.problem.conv_problem.GetDirection() != conv::Direction::BackwardWeights
+                   ? FindAllWinogradSolutions(ctx_copy, invoke_ctx)
+                   : FindWinogradWrWAllSolutions(ctx_copy, invoke_ctx);
     }
 };
 
@@ -167,7 +173,7 @@ const std::vector<std::unique_ptr<SolversFinder>>& GetConvSolverFinders()
     static const auto finders = []() {
         auto tmp = std::vector<std::unique_ptr<SolversFinder>>{};
         tmp.emplace_back(std::make_unique<WinogradSolverFinder>());
-        tmp.emplace_back(std::make_unique<DataDirectSolverFinder>());
+        tmp.emplace_back(std::make_unique<DirectSolverFinder>());
         tmp.emplace_back(std::make_unique<ImplicitGemmSolverFinder>());
         tmp.emplace_back(std::make_unique<GemmSolverFinder>());
         tmp.emplace_back(std::make_unique<FftSolverFinder>());

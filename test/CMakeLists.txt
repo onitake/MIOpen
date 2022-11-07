@@ -42,7 +42,6 @@ option( MIOPEN_TEST_GPU_XNACK_ENABLED "Test as if XNACK mode is enabled" OFF )
 option( MIOPEN_TEST_CONV Off)
 option( MIOPEN_TEST_DEEPBENCH Off)
 option( MIOPEN_TEST_DRIVER_ITER_MODE Off)
-option( MIOPEN_TEST_MIOTENSILE "Test MIOpenTensile path" OFF )
 option( MIOPEN_TEST_MLIR "Test for MLIR compilation backend" ${MIOPEN_USE_MLIR} )
 
 set_var_to_condition(MIOPEN_TEST_WITH_MIOPENDRIVER_DEFAULT MIOPEN_BUILD_DRIVER)
@@ -183,42 +182,26 @@ option( WORKAROUND_ISSUE_1148 "" ${WORKAROUND_ISSUE_1148_DEFAULT})
 set_var_to_condition(WORKAROUND_ISSUE_1334_DEFAULT MIOPEN_TEST_GFX103X AND MIOPEN_TEST_FLOAT)
 option( WORKAROUND_ISSUE_1334 "" ${WORKAROUND_ISSUE_1334_DEFAULT})
 
-if(NOT MIOPEN_TEST_MIOTENSILE)
-	if(MIOPEN_TEST_HALF)
-	    if(MIOPEN_BACKEND_OPENCL)
-		    set(SKIP_TESTS test_gru test_rnn_vanilla test_lstm)
-	    endif()
-	elseif(MIOPEN_TEST_INT8)
-	    set(SKIP_ALL_EXCEPT_TESTS
-                test_tensor_vec test_tensor_cast test_tensor_trans test_tensor_copy test_tensor_set
-                test_tensor_transform test_conv2d)
-	elseif(MIOPEN_TEST_BFLOAT16)
-	    set(SKIP_ALL_EXCEPT_TESTS
-                test_conv2d test_tensor_copy test_tensor_set test_tensor_vec test_immed_conv2d
-                test_check_numerics_test test_conv_extra test_conv_for_implicit_gemm test_miopen_conv
-                test_deepbench_conv test_conv_igemm_dynamic_xdlops_nhwc_wrw_bf16_gfx90a
-                test_conv_igemm_dynamic_xdlops_nhwc_fwd_bf16_gfx90a
-                test_conv_igemm_dynamic_xdlops_nhwc_bwd_bf16_gfx90a)
+if(MIOPEN_TEST_HALF)
+    if(MIOPEN_BACKEND_OPENCL)
+	    set(SKIP_TESTS test_gru test_rnn_vanilla test_lstm)
     endif()
-    if(${CODECOV_TEST})
-        list(APPEND SKIP_TESTS test_conv3d test_immed_conv3d test_immed_conv2d test_pooling2d test_pooling2d_asymmetric)
-        # replaced by smaller tests with suffix _codecov
-    endif()
-else()
-	if(MIOPEN_TEST_HALF)
-	    set(SKIP_ALL_EXCEPT_TESTS test_conv2d test_conv3d test_conv3d_extra test_immed_conv2d
-                test_immed_conv3d test_gru test_rnn_vanilla test_lstm test_gru_extra test_rnn_extra
-                test_lstm_extra)
-	elseif(MIOPEN_TEST_INT8)
-	    set(SKIP_ALL_EXCEPT_TESTS test_conv2d)
-	elseif(MIOPEN_TEST_BFLOAT16)
-	    set(SKIP_ALL_EXCEPT_TESTS test_conv2d test_immed_conv2d)
-    else()
-        set(SKIP_ALL_EXCEPT_TESTS test_conv2d test_conv3d test_conv3d_extra test_immed_conv2d
-                test_immed_conv3d test_gru test_rnn_vanilla test_lstm test_gru_extra
-                test_rnn_extra test_lstm_extra)
-	endif()
-endif()
+elseif(MIOPEN_TEST_INT8)
+    set(SKIP_ALL_EXCEPT_TESTS
+              test_tensor_vec test_tensor_cast test_tensor_trans test_tensor_copy test_tensor_set
+              test_tensor_transform test_conv2d test_conv2d_find2)
+elseif(MIOPEN_TEST_BFLOAT16)
+    set(SKIP_ALL_EXCEPT_TESTS
+              test_conv2d test_conv2d_find2 test_tensor_copy test_tensor_set test_tensor_vec test_immed_conv2d
+              test_check_numerics_test test_conv_extra test_conv_for_implicit_gemm test_miopen_conv
+              test_deepbench_conv test_conv_igemm_dynamic_xdlops_nhwc_wrw_bf16_gfx90a
+              test_conv_igemm_dynamic_xdlops_nhwc_fwd_bf16_gfx90a
+              test_conv_igemm_dynamic_xdlops_nhwc_bwd_bf16_gfx90a)
+  endif()
+  if(${CODECOV_TEST})
+      list(APPEND SKIP_TESTS test_conv3d test_conv3d_find2 test_immed_conv3d test_immed_conv2d test_pooling2d test_pooling2d_asymmetric)
+      # replaced by smaller tests with suffix _codecov
+  endif()
 
 if (MIOPEN_NO_GPU)
     set(SKIP_ALL_EXCEPT_TESTS test_include_inliner test_kernel_build_params
@@ -238,20 +221,13 @@ if(MIOPEN_BACKEND_OPENCL AND MIOPEN_TEST_ALL)
         list(APPEND SKIP_TESTS test_conv3d test_immed_conv3d test_immed_conv2d test_conv3d_find2)
     endif()
     if(MIOPEN_TEST_GFX103X)
-        list(APPEND SKIP_TESTS test_conv3d test_immed_conv3d test_immed_conv2d)
+        list(APPEND SKIP_TESTS test_conv3d test_immed_conv3d test_immed_conv2d test_conv3d_find2)
     endif()
 endif()
 
 #TODO WORKAROUND_ISSUE_1424
 if(MIOPEN_TEST_GFX900 OR MIOPEN_TEST_GFX906 OR MIOPEN_TEST_GFX908)
     list(APPEND SKIP_TESTS test_bn_3d_spatial_test)
-endif()
-
-#TODO WORKAROUND_ISSUE_1743: issue with GemmFwdRest
-# These tests are passing on latest mainline dockers
-# TODO: remove after next CI docker update
-if(MIOPEN_TEST_GFX90A AND MIOPEN_TEST_HALF)
-    list(APPEND SKIP_TESTS test_conv3d test_immed_conv3d test_conv3d_find2)
 endif()
 
 # The usage is non-trivial, see function add_test_command.
@@ -375,7 +351,9 @@ file(GLOB TESTS *.cpp)
 set(LONG_TESTS
     test_dropout
     test_conv2d
+    test_conv2d_find2
     test_conv3d
+    test_conv3d_find2
     test_conv_group
     test_soft_max
     test_lrn_test
@@ -476,11 +454,6 @@ endfunction()
 #   If nothing is specified, the default value is taken.
 #   Default: GFX900_ENABLED, GFX906_ENABLED, GFX908_ENABLED, GFX90A_ENABLED, GFX103X_DISABLED
 #
-# Special internal components: MIOTENSILE
-#   The option can be enabled or disabled by using '_ENABLED' and '_DISABLED' suffix.
-#   If nothing is specified, the default value is taken.
-#   Default: MIOTENSILE_DISABLED
-#
 # Testing mode:
 #   SKIP_UNLESS_ALL - The test should be only run if MIOPEN_TEST_ALL=TRUE. Intended for long tests.
 #   TEST_PERF_DB_RECORD_NOT_FOUND - Test should fail if output contains: "Perf Db: record not found".
@@ -496,7 +469,7 @@ function(add_custom_test NAME)
     set(options
         BF16_ENABLED BF16_DISABLED HALF_ENABLED HALF_DISABLED INT8_ENABLED INT8_DISABLED FLOAT_ENABLED FLOAT_DISABLED
         GFX900_ENABLED GFX900_DISABLED GFX906_ENABLED GFX906_DISABLED GFX908_ENABLED GFX908_DISABLED
-        GFX103X_ENABLED GFX103X_DISABLED GFX90A_ENABLED GFX90A_DISABLED MIOTENSILE_ENABLED MIOTENSILE_DISABLED
+        GFX103X_ENABLED GFX103X_DISABLED GFX90A_ENABLED GFX90A_DISABLED
         SKIP_UNLESS_MLIR SKIP_UNLESS_ALL TEST_PERF_DB_RECORD_NOT_FOUND SKIP_XNACK_ON
         OCL_ENABLED OCL_DISABLED HIP_ENABLED HIP_DISABLED HIP_NOGPU_ENABLED HIP_NOGPU_DISABLED
     )
@@ -526,12 +499,6 @@ function(add_custom_test NAME)
     set(FLOAT_TEST_DEFAULT TRUE)
     option_support_check(${PARSE_FLOAT_ENABLED} ${PARSE_FLOAT_DISABLED} ${FLOAT_TEST_DEFAULT} is_float_check)
     bool_and_f(${MIOPEN_TEST_FLOAT} ${is_float_check} is_float_check)
-
-    set(is_miotensile_check)
-    set(MIOTENSILE_TEST_DEFAULT FALSE)
-    option_support_check(${PARSE_MIOTENSILE_ENABLED} ${PARSE_MIOTENSILE_DISABLED} ${MIOTENSILE_TEST_DEFAULT} is_miotensile_check)
-    bool_not_f(${MIOPEN_TEST_MIOTENSILE} NOT_MIOPEN_TEST_MIOTENSILE)
-    bool_or_f(${NOT_MIOPEN_TEST_MIOTENSILE} ${is_miotensile_check} is_miotensile_check)
 
     set(is_mlir_check)
     bool_not_f(${PARSE_SKIP_UNLESS_MLIR} is_mlir_check)
@@ -658,7 +625,8 @@ if(${MIOPEN_TEST_WITH_MIOPENDRIVER})
         COMMAND $<TARGET_FILE:MIOpenDriver> ${MIOPENDRIVER_MODE_BN} -n 256 -c 512 -H 28 -W 28 -m 1 --forw 0 -b 1 -r 1
     )
 
-    add_custom_test(test_miopendriver_big_tensor GFX900_DISABLED GFX906_DISABLED SKIP_UNLESS_ALL GFX103X_ENABLED
+    # WORKAROUND_ISSUE_1787 disabled for gfx908
+    add_custom_test(test_miopendriver_big_tensor GFX900_DISABLED GFX906_DISABLED GFX908_DISABLED SKIP_UNLESS_ALL GFX103X_ENABLED
         # Regression test for https://github.com/ROCmSoftwarePlatform/MIOpen/issues/1661
         # Issue #1697: this is large test which has to run in serial and not enabled on gfx900/gfx906
         COMMAND MIOPEN_DRIVER_USE_GPU_REFERENCE=1 $<TARGET_FILE:MIOpenDriver> ${MIOPENDRIVER_MODE_CONV} -W 5078 -H 4903 -c 24 -n 5 -k 1 --fil_w 3 --fil_h 3 --pad_w 6 --pad_h 4 -F 1
@@ -910,7 +878,7 @@ COMMAND	${IMPLICITGEMM_TESTING_ENV} $<TARGET_FILE:test_conv2d> ${IMPLICITGEMM_AR
 COMMAND	${IMPLICITGEMM_TESTING_ENV} $<TARGET_FILE:test_conv2d> ${IMPLICITGEMM_ARGS} --verbose   --input 64	 32	7 7   --weights   192  32   3	3   --pads_strides_dilations	2   2	2   2	1   1         | grep -v "cannot be executed due to incorrect params"
 )
 
-add_custom_test(test_conv_group SKIP_UNLESS_ALL MIOTENSILE_ENABLED GFX103X_ENABLED
+add_custom_test(test_conv_group SKIP_UNLESS_ALL GFX103X_ENABLED
 COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	16	128	56	56	--weights	256	4	3	3	--pads_strides_dilations	1	1	1	1	1	1	--group-count	32
 COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	16	256	56	56	--weights	512	8	3	3	--pads_strides_dilations	1	1	2	2	1	1	--group-count	32
 COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	16	256	28	28	--weights	512	8	3	3	--pads_strides_dilations	1	1	1	1	1	1	--group-count	32
@@ -970,7 +938,7 @@ COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	8	3	108	108	--weights	63	1	
 
 
 if(MIOPEN_TEST_DEEPBENCH)
-    add_custom_test(test_deepbench_rnn  MIOTENSILE_ENABLED GFX103X_ENABLED
+    add_custom_test(test_deepbench_rnn GFX103X_ENABLED
     COMMAND $<TARGET_FILE:test_rnn_vanilla> --verbose --batch-size 16 --seq-len 50 --vector-len 1760 --hidden-size 1760 --num-layers 1 --in-mode 1 --bias-mode 0 -dir-mode 0 --rnn-mode 0 --flat-batch-fill
     COMMAND $<TARGET_FILE:test_rnn_vanilla> --verbose --batch-size 32 --seq-len 50 --vector-len 1760 --hidden-size 1760 --num-layers 1 --in-mode 1 --bias-mode 0 -dir-mode 0 --rnn-mode 0 --flat-batch-fill
     COMMAND $<TARGET_FILE:test_rnn_vanilla> --verbose --batch-size 64 --seq-len 50 --vector-len 1760 --hidden-size 1760 --num-layers 1 --in-mode 1 --bias-mode 0 -dir-mode 0 --rnn-mode 0 --flat-batch-fill
@@ -1028,7 +996,7 @@ if(MIOPEN_TEST_DEEPBENCH)
 endif()
 
 
-add_custom_test(test_rnn_extra SKIP_UNLESS_ALL  MIOTENSILE_ENABLED GFX103X_ENABLED
+add_custom_test(test_rnn_extra SKIP_UNLESS_ALL GFX103X_ENABLED
 COMMAND $<TARGET_FILE:test_rnn_vanilla> --verbose --batch-size 32 --seq-len 3 --batch-seq 32 32 32 --vector-len 128 --hidden-size 128 --num-layers 1 --in-mode 0 --bias-mode 0 -dir-mode 0 --rnn-mode 0 --no-hx
 COMMAND $<TARGET_FILE:test_rnn_vanilla> --verbose --batch-size 32 --seq-len 3 --batch-seq 32 32 32 --vector-len 128 --hidden-size 128 --num-layers 1 --in-mode 0 --bias-mode 0 -dir-mode 0 --rnn-mode 0 --no-dhy
 COMMAND $<TARGET_FILE:test_rnn_vanilla> --verbose --batch-size 32 --seq-len 3 --batch-seq 32 32 32 --vector-len 128 --hidden-size 128 --num-layers 1 --in-mode 0 --bias-mode 0 -dir-mode 0 --rnn-mode 0 --no-hx --no-dhy
@@ -1059,7 +1027,7 @@ COMMAND $<TARGET_FILE:test_rnn_vanilla> --verbose --batch-size 32 --seq-len 3 --
 COMMAND $<TARGET_FILE:test_rnn_vanilla> --verbose --batch-size 32 --seq-len 3 --batch-seq 32 32 32 --vector-len 128 --hidden-size 128 --num-layers 1 --in-mode 0 --bias-mode 0 -dir-mode 1 --rnn-mode 1 --no-hx --no-dhy --no-hy --no-dhx
 )
 
-add_custom_test(test_gru_extra SKIP_UNLESS_ALL  MIOTENSILE_ENABLED GFX103X_ENABLED
+add_custom_test(test_gru_extra SKIP_UNLESS_ALL GFX103X_ENABLED
 COMMAND $<TARGET_FILE:test_gru> --verbose --batch-size 32 --seq-len 3 --batch-seq 32 32 32 --vector-len 128 --hidden-size 128 --num-layers 1 --in-mode 0 --bias-mode 0 -dir-mode 0 --no-hx
 COMMAND $<TARGET_FILE:test_gru> --verbose --batch-size 32 --seq-len 3 --batch-seq 32 32 32 --vector-len 128 --hidden-size 128 --num-layers 1 --in-mode 0 --bias-mode 0 -dir-mode 0 --no-dhy
 COMMAND $<TARGET_FILE:test_gru> --verbose --batch-size 32 --seq-len 3 --batch-seq 32 32 32 --vector-len 128 --hidden-size 128 --num-layers 1 --in-mode 0 --bias-mode 0 -dir-mode 0 --no-hx --no-dhy
@@ -1076,7 +1044,7 @@ COMMAND $<TARGET_FILE:test_gru> --verbose --batch-size 32 --seq-len 3 --batch-se
 COMMAND $<TARGET_FILE:test_gru> --verbose --batch-size 32 --seq-len 3 --batch-seq 32 32 32 --vector-len 128 --hidden-size 128 --num-layers 1 --in-mode 0 --bias-mode 0 -dir-mode 1 --no-hx --no-dhy --no-hy --no-dhx
 )
 
-add_custom_test(test_lstm_extra SKIP_UNLESS_ALL  MIOTENSILE_ENABLED GFX103X_ENABLED
+add_custom_test(test_lstm_extra SKIP_UNLESS_ALL GFX103X_ENABLED
 COMMAND $<TARGET_FILE:test_lstm> --verbose --batch-size 32 --seq-len 3 --batch-seq 32 32 32 --vector-len 128 --hidden-size 128 --num-layers 1 --in-mode 0 --bias-mode 0 -dir-mode 0 --no-hx
 COMMAND $<TARGET_FILE:test_lstm> --verbose --batch-size 32 --seq-len 3 --batch-seq 32 32 32 --vector-len 128 --hidden-size 128 --num-layers 1 --in-mode 0 --bias-mode 0 -dir-mode 0 --no-dhy
 COMMAND $<TARGET_FILE:test_lstm> --verbose --batch-size 32 --seq-len 3 --batch-seq 32 32 32 --vector-len 128 --hidden-size 128 --num-layers 1 --in-mode 0 --bias-mode 0 -dir-mode 0 --no-hx --no-dhy
@@ -1110,7 +1078,7 @@ COMMAND $<TARGET_FILE:test_lstm> --verbose --batch-size 32 --seq-len 3 --batch-s
 )
 
 
-add_custom_test(test_conv_extra SKIP_UNLESS_ALL  MIOTENSILE_ENABLED GFX103X_ENABLED
+add_custom_test(test_conv_extra SKIP_UNLESS_ALL GFX103X_ENABLED
 # COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	1	1	1	1	--weights	1	1	2	2	--pads_strides_dilations	0	0	3	3	1	1
 COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	4	1	161	700	--weights	4	1	5	20	--pads_strides_dilations	0	0	2	2	1	1
 COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	4	1	161	700	--weights	4	1	5	20	--pads_strides_dilations	0	0	2	2	1	1
@@ -1176,7 +1144,7 @@ endif()
 endif()
 
 
-add_custom_test(test_conv_trans SKIP_UNLESS_ALL  MIOTENSILE_ENABLED GFX103X_ENABLED
+add_custom_test(test_conv_trans SKIP_UNLESS_ALL GFX103X_ENABLED
 COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	8	128	28	28	--weights	128	128	1	1	--pads_strides_dilations	0	0	1	1	1	1	--cmode	trans	--pmode	default
 COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	8	256	28	28	--weights	256	256	1	1	--pads_strides_dilations	0	0	1	1	1	1	--cmode	trans	--pmode	same
 COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	8	32	28	28	--weights	32	32	5	5	--pads_strides_dilations	0	0	2	2	1	1	--cmode	trans	--pmode	default
@@ -1196,7 +1164,7 @@ COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	100	6	4	4	--weights	6	4	1	1
 )
 
 
-add_custom_test(test_conv_3d SKIP_UNLESS_ALL  MIOTENSILE_ENABLED GFX103X_ENABLED
+add_custom_test(test_conv_3d SKIP_UNLESS_ALL GFX103X_ENABLED
 COMMAND $<TARGET_FILE:test_conv3d> --verbose --conv_dim_type conv3d --input 16    32   4    9     9  --weights    64    32   3  3    3  --pads_strides_dilations  0  0  0    2  2   2    1   1   1  --group-count   1   --cmode conv   --pmode   default
 COMMAND $<TARGET_FILE:test_conv3d> --verbose --conv_dim_type conv3d --input  4     3   4  227   227  --weights     4     3   3 11   11  --pads_strides_dilations  0  0  0    1  1   1    1   1   1  --group-count   1   --cmode conv   --pmode   default
 COMMAND $<TARGET_FILE:test_conv3d> --verbose --conv_dim_type conv3d --input 16   128   4   56    56  --weights   256     4   3  3    3  --pads_strides_dilations  1  1  1    1  1   1    1   1   1  --group-count   32  --cmode conv   --pmode   default
@@ -1727,7 +1695,8 @@ set(CONV_CK_IGEMM_FWD_V6R1_DLOPS_NCHW_ENV
     MIOPEN_FIND_MODE=normal
     MIOPEN_DEBUG_FIND_ONLY_SOLVER=ConvCkIgemmFwdV6r1DlopsNchw)
 
-add_custom_test(test_conv_ck_igemm_fwd_v6r1_dlops_nchw FLOAT_ENABLED HALF_ENABLED BF16_DISABLED GFX103X_ENABLED SKIP_UNLESS_ALL
+# gfx908 disabled as a workaround for https://github.com/ROCmSoftwarePlatform/MIOpen/pull/1790/files?diff=split&w=1#r982923610
+add_custom_test(test_conv_ck_igemm_fwd_v6r1_dlops_nchw FLOAT_ENABLED HALF_ENABLED BF16_DISABLED GFX908_DISABLED GFX103X_ENABLED SKIP_UNLESS_ALL
 COMMAND ${CONV_CK_IGEMM_FWD_V6R1_DLOPS_NCHW_ENV}     $<TARGET_FILE:test_conv2d> ${MIOPEN_TEST_FLOAT_ARG} --verbose --input 128 1024 14 14  --weights 2048 1024 1 1 --pads_strides_dilations 0 0 2 2 1 1 --disable-backward-data --disable-backward-weights
 COMMAND ${CONV_CK_IGEMM_FWD_V6R1_DLOPS_NCHW_ENV}     $<TARGET_FILE:test_conv2d> ${MIOPEN_TEST_FLOAT_ARG} --verbose --input 128  256 14 14  --weights  256 1024 1 1 --pads_strides_dilations 0 0 1 1 1 1 --disable-backward-data --disable-backward-weights
 COMMAND ${CONV_CK_IGEMM_FWD_V6R1_DLOPS_NCHW_ENV}     $<TARGET_FILE:test_conv2d> ${MIOPEN_TEST_FLOAT_ARG} --verbose --input 128 1024 14 14  --weights  512 1024 1 1 --pads_strides_dilations 0 0 1 1 1 1 --disable-backward-data --disable-backward-weights
@@ -1781,7 +1750,7 @@ COMMAND $<TARGET_FILE:test_reduce_test> ${MIOPEN_TEST_FLOAT_ARG} --scales 1 0 --
 )
 
 if(MIOPEN_TEST_DEEPBENCH)
-    add_custom_test(test_deepbench_conv  MIOTENSILE_ENABLED GFX103X_ENABLED
+    add_custom_test(test_deepbench_conv GFX103X_ENABLED
     COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	4	1	161	700	--weights	32	1	5	20	--pads_strides_dilations	0	0	2	2	1	1
     COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	8	1	161	700	--weights	32	1	5	20	--pads_strides_dilations	0	0	2	2	1	1
     COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	16	1	161	700	--weights	32	1	5	20	--pads_strides_dilations	0	0	2	2	1	1
@@ -1822,7 +1791,7 @@ if(MIOPEN_TEST_DEEPBENCH)
 endif()
 
 if(MIOPEN_TEST_CONV)
-    add_custom_test(test_miopen_conv  MIOTENSILE_ENABLED GFX103X_ENABLED
+    add_custom_test(test_miopen_conv GFX103X_ENABLED
     COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	1	3	32	32	--weights	1	3	7	7	--pads_strides_dilations	1	1	1	1	1	1
     COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	1	3	227	227	--weights	1	3	7	7	--pads_strides_dilations	1	1	1	1	1	1
     COMMAND	$<TARGET_FILE:test_conv2d>	--verbose	--input	1	64	56	56	--weights	1	64	1	1	--pads_strides_dilations	0	0	2	2	1	1
@@ -1913,4 +1882,6 @@ add_custom_test(test_regression_half_mi200 GFX900_DISABLED GFX906_DISABLED GFX90
     # Issue-internal #4
     COMMAND	${ENVS_FIND_ONLY_HIP_IGEMM_V4R4XDLOPS} $<TARGET_FILE:test_conv2d> ${MIOPEN_TEST_FLOAT_ARG} --cmode conv --pmode default --input 120 64 75 75 --weights 128 64 1 1 --pads_strides_dilations 0 0 2 2 1 1 ${ARGS_ENABLE_FORWARD_ONLY}
 )
-# add_subdirectory(gtest)
+#override if we need to install gtests
+set(INSTALL_GTEST OFF)
+add_subdirectory(gtest EXCLUDE_FROM_ALL)
