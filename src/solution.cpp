@@ -52,7 +52,7 @@ void Solution::Run(Handle& handle,
         RunImpl(handle, inputs, workspace, workspace_size, op_desc);
     });
 
-    boost::apply_visitor(run, problem.GetOperatorDescriptor());
+    std::visit(run, problem.GetOperatorDescriptor());
 }
 
 void Solution::RunImpl(Handle& handle,

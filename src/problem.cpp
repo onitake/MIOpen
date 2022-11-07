@@ -79,7 +79,7 @@ template <template <class Type> class Visitor, class... VariantArgs>
 struct VisitType;
 
 template <template <class Type> class Visitor, class... VariantArgs>
-struct VisitType<Visitor, boost::variant<VariantArgs...>>
+struct VisitType<Visitor, std::variant<VariantArgs...>>
 {
     template <class... Args>
     void operator()(int id, Args... args)
@@ -119,7 +119,7 @@ Problem::FindSolutions(Handle& handle, const FindOptions& options, std::size_t m
         return FindSolutionsImpl(handle, options, max_solutions, buffers, op_desc);
     });
 
-    auto ret = boost::apply_visitor(find, operator_descriptor);
+    auto ret = std::visit(find, operator_descriptor);
 
     const auto sorter = [&]() -> std::function<bool(const Solution&, const Solution&)> {
         switch(options.results_order)
@@ -173,7 +173,7 @@ Problem Problem::MakeTransposed() const
     const auto transpose_tensors = boost::hof::match(
         [&](const ConvolutionDescriptor& op_desc) { return transposed.TransposeImpl(op_desc); });
 
-    boost::apply_visitor(transpose_tensors, operator_descriptor);
+    std::visit(transpose_tensors, operator_descriptor);
 
     return transposed;
 }
@@ -193,7 +193,7 @@ AnyInvokeParams Problem::MakeConvInvokeParams(const TensorDescriptor& x_desc,
                                               Data_t workspace,
                                               size_t workspace_size) const
 {
-    const auto& conv_desc = boost::get<ConvolutionDescriptor>(operator_descriptor);
+    const auto& conv_desc = std::get<ConvolutionDescriptor>(operator_descriptor);
 
     switch(GetDirection())
     {
@@ -218,7 +218,7 @@ AnyInvokeParams Problem::MakeConvInvokeParams(const TensorDescriptor& x_desc,
 
 conv::ProblemDescription Problem::AsConvolution() const
 {
-    const auto& conv_desc = boost::get<ConvolutionDescriptor>(operator_descriptor);
+    const auto& conv_desc = std::get<ConvolutionDescriptor>(operator_descriptor);
 
     const auto& x_desc =
         GetTensorDescriptorChecked(miopenTensorConvolutionX, "miopenTensorConvolutionX");
@@ -308,11 +308,11 @@ void to_json(nlohmann::json& json, const Problem& problem)
     json = nlohmann::json{
         {"direction", problem.direction},
         {"tensors", problem.tensor_descriptors},
-        {"primitive", problem.operator_descriptor.which()},
+        {"primitive", problem.operator_descriptor.index()},
     };
 
     auto operator_serialization = [&](auto&& op) { json["operator"] = op; };
-    boost::apply_visitor(operator_serialization, problem.operator_descriptor);
+    std::visit(operator_serialization, problem.operator_descriptor);
 }
 
 namespace detail {
@@ -322,7 +322,7 @@ struct OperatorDescriptorDeserializer
     const nlohmann::json* json;
     OperatorDescriptor* descriptor;
 
-    void operator()() const { *descriptor = json->get<Descriptor>(); }
+    inline void operator()() const { *descriptor = json->get<Descriptor>(); }
 };
 } // namespace detail
 
