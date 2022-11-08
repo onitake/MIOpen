@@ -260,7 +260,7 @@ std::vector<Solution> Problem::FindSolutionsImpl(Handle& handle,
         std::swap(x_desc, y_desc);
     }
 
-    const auto& actual_problem = miopenTranspose ? MakeTransposed() : *this;
+    const auto& actual_problem = (conv_desc.mode == miopenTranspose) ? MakeTransposed() : *this;
     const auto conv_problem    = actual_problem.AsConvolution();
 
     const auto workspace_max  = conv_desc.GetWorkSpaceSize({&handle}, conv_problem);
